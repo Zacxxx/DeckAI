@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ../
+      dockerfile: deploy/Dockerfile.backend
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DATABASE_URL=file:./dev.db
+    volumes:
+      - ../backend:/app
+
+  frontend:
+    build:
+      context: ../
+      dockerfile: deploy/Dockerfile.frontend
+    ports:
+      - "3000:80"

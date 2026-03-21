@@ -1,0 +1,5 @@
+{
+  "name": "DeckAI - AI Deck Creator",
+  "description": "Create stunning slide decks with AI. Choose your design language, target audience, and complexity. Export to PDF via high-performance Rust-powered HTML rendering.",
+  "requestFramePermissions": []
+}
