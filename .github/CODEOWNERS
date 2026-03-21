@@ -1,0 +1,5 @@
+# This file explicitly defines code ownership for the repository.
+# Documentation: https://help.github.com/articles/about-code-owners/
+
+# Global ownership: @Zacxxx is the absolute owner of the entire repository.
+*       @Zacxxx
