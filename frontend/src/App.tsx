@@ -227,7 +227,7 @@ export default function App() {
           </div>
         </div>
 
-        <div className="flex items-center gap-6 overflow-x-auto">
+        <div className="flex items-center gap-6">
           {/* Tools Component Pipeline */}
           <div className="hidden lg:flex gap-2">
             <button onClick={() => setActiveTool('Select')} className={`group relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${activeTool === 'Select' ? 'bg-[#2c2b29] text-[#10b981] shadow-md border border-[#10b981]/20' : 'bg-[#f4f1ea] text-[#8b867c] hover:bg-[#e8e4d9] border border-transparent'}`}>
