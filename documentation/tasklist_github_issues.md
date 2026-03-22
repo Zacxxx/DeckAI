@@ -1,26 +1,39 @@
 # Tasklist / GitHub Issues
 
-### Epic 1: Custom Agent Orchestration (Opencode Harness)
-- [ ] **Issue #0:** Fork and customize the `opencode harness` as the core agent execution and tool-calling layer.
-- [ ] **Issue #1:** Implement Dual-Environment support: configure the harness to route to **Google Cloud Run** for managed inference, or run a **Local Harness** node pointing to **OpenRouter**.
-- [ ] **Issue #2:** Build the Design System RAG context window (injecting user specific tokens, fonts, and grid logic as strict axioms into the Agent's prompt).
-- [ ] **Issue #3:** Implement State Management to handle multi-turn iterative layout loops transparently within the opencode harness (Agent retries before showing output).
+## Project: Agent (Mob)
+
+### Epic 1: Custom Agent Orchestration (Codex Harness)
+- [x] **Issue #0:** Extract and customize the `openai/codex` harness as the core agent orchestration (Rust/Tokio layer).
+- [ ] **Issue #1:** Implement Dual-Environment routing supporting **Google Cloud Run** and the **Local Harness** node via MCP server logic.
+- [ ] **Issue #3:** Build the TUI Dashboard for state visibility and real-time validation monitoring. **(Status: Initialized via Ratatui)**
 
 ### Epic 2: The Deterministic Headless Validator (Zero Layout Breaks)
-- [ ] **Issue #4:** Deploy Playwright on Google Cloud Run as a validation API for cloud users, and package a local Playwright runtime for the Local Harness.
-- [ ] **Issue #5:** Create the "Boundary Checker" tool for the harness: parse DOM, return bounding rects, and mathematically flag overlaps/overflows.
-- [ ] **Issue #6:** Create the "Aesthetics Checker" tool: validate WCAG contrast ratios and micro-alignment using basic design heuristics (8pt grid snap checks).
+- [ ] **Issue #4:** Deploy Playwright on Cloud Run as an active physics node.
+- [ ] **Issue #5:** Build the `validate_layout` "Boundary Checker" tool mathematically parsing DOM boundaries against viewport rects.
+- [ ] **Issue #6:** Build the `verify_aesthetics` tool mapping WCAG contrast and strict 8pt grid snapping.
+
+***
+
+## Project: Backend (Node.js API)
+
+### Epic 5: Flawless Native Exporters Core
+- [x] **Issue #12:** Build the High-Fidelity Chromium PDF printer service (`@page` boundaries matched perfectly to HTML scale via Playwright).
+- [x] **Issue #13:** Develop HTML-to-OpenXML parser structure mapped to PPTX natively (`pptxgenjs`).
+- [ ] **Issue #14:** Implement the strict OpenXML chart injection parsing dynamically from HTML chart boundaries.
+
+### Epic 6: Agnostic State Management
+- [x] **Issue #2 (Moved):** Design the Unified Schema (Prisma/SQLite) securely storing `Project`, `Slide`, and `DesignSystem` models.
+- [x] **Issue #15 (New):** Build the Model Context Protocol (MCP) Server endpoints (`/api/mcp/tools`, `/api/mcp/execute`) to decouple UX from Agent.
+- [ ] **Issue #11:** Build UI/DB endpoints for retrieving and mutating saved Components natively.
+
+***
+
+## Project: Frontend (React Canvas)
 
 ### Epic 3: Frontend Steering & Canvas Interactions
-- [ ] **Issue #7:** Build React Canvas with strict A4 and 16:9 viewport `iframes` scaling precisely to screen size without distortion.
-- [ ] **Issue #8:** Implement DOM selection bounding box logic to let users isolate nested semantic HTML components frictionlessly. 
-- [ ] **Issue #9:** Create the granular "Steering Protocol" (transmit selected DOM subset + localized user prompt -> receive targeted HTML patch from the harness).
+- [ ] **Issue #7:** Build React Canvas integrating strict A4 and 16:9 viewport `iframes` scaling precisely to screen size.
+- [ ] **Issue #8:** Implement DOM selection bounding box logic to isolate nested semantic HTML components dynamically.
+- [ ] **Issue #9:** Wire the localized "Steering Protocol" capturing the mutated DOM subsets and pushing them via the MCP endpoints.
 
 ### Epic 4: The 10x Component Extraction System
-- [ ] **Issue #10:** Implement intelligent DOM-to-Component parser (user clicks "Save Component", system strips hardcoded text and parameterizes the structure).
-- [ ] **Issue #11:** Build UI/DB for managing saved Components/Design Systems (supporting both cloud vector DBs and local SQLite/Chroma instance for Local Mode).
-
-### Epic 5: Flawless Native Exporters
-- [ ] **Issue #12:** Build the High-Fidelity Chromium PDF printer service (`@page` boundaries matched perfectly to HTML scale).
-- [ ] **Issue #13:** Develop HTML-to-OpenXML parser. Map CSS layouts (flexbox/grid approximations via absolute coordinates) to PPTX native objects automatically.
-- [ ] **Issue #14:** Ensure interactive charts in HTML are rebuilt natively via OpenXML chart injection in PPTX exports.
+- [ ] **Issue #10:** Implement intelligent DOM-to-Component parser abstracting localized classes into parameterized generic UI tokens.

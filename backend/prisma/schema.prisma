@@ -1,13 +1,41 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  title       String
+  format      String   // A4 or 16:9
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  slides        Slide[]
+  designSystem  DesignSystem?
+}
+
+model DesignSystem {
+  id           String   @id @default(uuid())
+  projectId    String   @unique
+  primaryHex   String   @default("#000000")
+  secondaryHex String   @default("#ffffff")
+  fontFamily   String   @default("Inter, sans-serif")
+  gridBase     Int      @default(8)
+
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Slide {
+  id          String   @id @default(uuid())
+  projectId   String
+  orderIndex  Int
+  htmlPayload String   // Base structural HTML payload driven by the Agent
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
