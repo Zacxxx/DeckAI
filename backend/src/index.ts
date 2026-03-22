@@ -166,6 +166,28 @@ app.get('/api/components', async (req: Request, res: Response) => {
     } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
+// --- Remote CLI Agent Installer ---
+app.post('/api/agents/install', async (req: Request, res: Response) => {
+    const { agentName } = req.body;
+    let cmd = "";
+
+    // Attempt to map agent target to CLI invocation. 
+    // Uses x-terminal-emulator for dynamic Linux bash execution to inject the skill prompt.
+    if (agentName === 'Claude Code') cmd = 'claude -p "Install the DeckAI MCP skill using http://localhost:8080/api/mcp/tools"';
+    else if (agentName === 'Codex') cmd = 'codex --prompt "Connect to DeckAI MCP at http://localhost:8080"';
+    else if (agentName === 'Gemini') cmd = 'gemini-cli --skill "DeckAI: localhost:8080"';
+    else if (agentName === 'Opencode') cmd = 'opencode start "Load DeckAI localhost:8080"';
+    else cmd = `${agentName.toLowerCase()} "Inject DeckAI MCP"`;
+
+    try {
+        const terminalSpawner = spawn('x-terminal-emulator', ['-e', `bash -c '${cmd}; exec bash'`]);
+        terminalSpawner.unref();
+        res.status(200).json({ status: "Terminal spawned successfully." });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to spawn host OS terminal." });
+    }
+});
+
 // --- Epic 5 Exporters: High-Fidelity Chromium PDF Printer ---
 app.get('/api/export/pdf/:projectId', async (req: Request, res: Response) => {
     const projectId = req.params.projectId as string;

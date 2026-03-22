@@ -17,6 +17,26 @@ export default function App() {
   const [attachedDocs, setAttachedDocs] = useState<{ name: string, content: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Agent Skill Menu State
+  const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
+  const [installedAgents, setInstalledAgents] = useState<Record<string, boolean>>({
+    'Codex': false, 'Kiro': false, 'Claude Code': false, 'Gemini': false, 'Opencode': false
+  });
+
+  const handleInstallAgent = async (agentName: string) => {
+    try {
+      await fetch('http://localhost:8080/api/agents/install', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agentName })
+      });
+      // Mock validation after a few seconds
+      setTimeout(() => setInstalledAgents(prev => ({ ...prev, [agentName]: true })), 3000);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll logs
@@ -148,14 +168,39 @@ export default function App() {
 
           <div className="h-6 w-px bg-[#e8e4d9]" />
 
-          <button onClick={() => {
-            const link = document.createElement('a');
-            link.href = '/deckai-skill.md';
-            link.download = 'deckai-skill.md';
-            link.click();
-          }} className="group flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#10b981]/30 bg-[#10b981]/10 text-[11px] uppercase tracking-wider font-bold text-[#10b981] hover:bg-[#10b981] hover:text-white transition-all duration-300 h-8">
-            🔌 Add Agent Skill
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setIsAgentMenuOpen(!isAgentMenuOpen)}
+              className="group flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#10b981]/30 bg-[#10b981]/10 text-[11px] uppercase tracking-wider font-bold text-[#10b981] hover:bg-[#10b981] hover:text-white transition-all duration-300 h-8"
+            >
+              🔌 Agent Skills
+            </button>
+
+            {isAgentMenuOpen && (
+              <div className="absolute top-full mt-3 right-0 w-64 bg-white/95 backdrop-blur-xl border border-black/10 shadow-[0_16px_48px_rgba(0,0,0,0.12)] rounded-2xl p-2 z-50 flex flex-col gap-1">
+                <div className="px-3 pt-2 pb-1">
+                  <span className="text-[10px] font-bold text-[#8b867c] tracking-widest uppercase">Supported CLI Agents</span>
+                </div>
+                {Object.keys(installedAgents).map(agent => (
+                  <button
+                    key={agent}
+                    onClick={() => !installedAgents[agent] && handleInstallAgent(agent)}
+                    className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 text-left ${installedAgents[agent] ? 'cursor-default bg-[#10b981]/5 text-[#2c2b29]' : 'hover:bg-[#f4f1ea] text-[#555]'}`}
+                  >
+                    <span className={`text-[13px] font-medium ${installedAgents[agent] ? 'text-[#10b981]' : ''}`}>{agent}</span>
+                    {installedAgents[agent] ? (
+                      <div className="flex items-center gap-1.5 text-[#10b981]">
+                        <span className="text-[10px] font-bold uppercase tracking-wider">Installed</span>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] font-bold text-[#a8a49c] uppercase tracking-wider group-hover:text-[#2c2b29]">Install</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           <div className="h-6 w-px bg-[#e8e4d9]" />
 
@@ -180,7 +225,7 @@ export default function App() {
             {/* Active Node Targetting */}
             <div>
               <h2 className="text-[10px] font-bold text-[#8b867c] tracking-[0.2em] uppercase mb-4 flex items-center justify-between">
-                Structural Target
+                Tools
                 <span className={`w-1.5 h-1.5 rounded-full ${selectedNode ? 'bg-[#10b981]' : 'bg-[#d1d5db]'}`} />
               </h2>
               <div className="bg-[#2c2b29] p-5 rounded-2xl shadow-xl border border-[#3e3d3b] flex flex-col gap-3 group relative overflow-hidden">
@@ -220,8 +265,13 @@ export default function App() {
             {/* Agent Telemetry / SSE Log Stream */}
             <div className="flex-1 flex flex-col min-h-0">
               <h2 className="text-[10px] font-bold text-[#8b867c] tracking-[0.2em] uppercase mb-3 flex items-center justify-between">
-                Agent Telemetry
-                <span className="text-[10px] lowercase tracking-normal bg-[#e8e4d9] text-[#2c2b29] px-2 py-0.5 rounded">sse connected</span>
+                Monitoring
+                <div className="relative group cursor-help flex items-center justify-center w-4 h-4">
+                  <span className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
+                  <div className="absolute top-1/2 -translate-y-1/2 right-6 bg-[#2c2b29] text-white text-[10px] px-2.5 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    SSE Stream Active
+                  </div>
+                </div>
               </h2>
               <div className="flex-1 bg-white border border-[#e8e4d9] rounded-2xl shadow-sm p-4 overflow-y-auto font-mono text-[10px] text-[#555] leading-relaxed relative scroll-smooth">
                 {agentLogs.length === 0 ? (
