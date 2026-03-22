@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from './components/Canvas';
-import { Undo2, Redo2, MousePointer2, Pen, Eraser, Library, X } from 'lucide-react';
+import { Undo2, Redo2, MousePointer2, Pen, Eraser, Library, X, Plug, ChevronDown, Download, FileText, Presentation } from 'lucide-react';
 
 export default function App() {
   const [format, setFormat] = useState<'16:9' | 'A4'>('16:9');
@@ -23,8 +23,9 @@ export default function App() {
   const [attachedDocs, setAttachedDocs] = useState<{ name: string, content: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Agent Skill Menu State
+  // Menu States
   const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [installedAgents, setInstalledAgents] = useState<Record<string, boolean>>({
     'Codex': false, 'Kiro': false, 'Claude Code': false, 'Gemini': false, 'Opencode': false
   });
@@ -278,13 +279,42 @@ export default function App() {
 
           <div className="h-6 w-px bg-[#e8e4d9]" />
 
-          <div className="flex gap-2">
-            <button onClick={() => handleExport('pdf')} className="group flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#e8e4d9] text-[11px] uppercase tracking-wider font-bold text-[#555] hover:bg-[#e8e4d9] hover:text-[#2c2b29] transition-all duration-300 h-8">
-              PDF Export
+          <div className="relative">
+            <button
+              onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
+              className="group flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#2c2b29] border border-[#2c2b29] text-[11px] uppercase tracking-wider font-bold text-white hover:bg-black transition-all duration-300 h-8 shadow-sm"
+            >
+              <Download size={12} strokeWidth={2.5} /> Export <ChevronDown size={12} strokeWidth={2.5} className={`transition-transform duration-300 ${isExportMenuOpen ? 'rotate-180' : ''}`} />
             </button>
-            <button onClick={() => handleExport('pptx')} className="group flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#e8e4d9] text-[11px] uppercase tracking-wider font-bold text-[#555] hover:bg-[#e8e4d9] hover:text-[#2c2b29] transition-all duration-300 h-8">
-              PPTX Export
-            </button>
+
+            {isExportMenuOpen && (
+              <div className="absolute top-full mt-3 right-0 w-56 bg-white/95 backdrop-blur-xl border border-black/10 shadow-[0_16px_48px_rgba(0,0,0,0.12)] rounded-2xl p-2 z-50 flex flex-col gap-1">
+                <div className="px-3 pt-2 pb-1">
+                  <span className="text-[10px] font-bold text-[#8b867c] tracking-widest uppercase">Export Options</span>
+                </div>
+                <button onClick={() => { handleExport('pdf'); setIsExportMenuOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#f4f1ea] transition-all text-left text-[#2c2b29] group">
+                  <FileText size={14} className="text-[#10b981]" />
+                  <div className="flex flex-col">
+                    <span className="text-[12px] font-bold">PDF Document</span>
+                    <span className="text-[9px] text-[#8b867c] font-medium font-mono uppercase tracking-widest">High Fidelity</span>
+                  </div>
+                </button>
+                <button onClick={() => { handleExport('pptx'); setIsExportMenuOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#f4f1ea] transition-all text-left text-[#2c2b29] group">
+                  <Presentation size={14} className="text-[#f59e0b]" />
+                  <div className="flex flex-col">
+                    <span className="text-[12px] font-bold">PowerPoint (PPTX)</span>
+                    <span className="text-[9px] text-[#8b867c] font-medium font-mono uppercase tracking-widest">Editable Nodes</span>
+                  </div>
+                </button>
+                <div className="h-px w-full bg-[#e8e4d9] my-1" />
+                <button disabled className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left text-[#a8a49c] opacity-50 cursor-not-allowed">
+                  <div className="flex flex-col">
+                    <span className="text-[12px] font-bold">Current Node Only</span>
+                    <span className="text-[9px] font-medium font-mono uppercase tracking-widest">Coming Soon</span>
+                  </div>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -334,7 +364,7 @@ export default function App() {
       <main className="flex-1 relative overflow-hidden flex">
 
         {/* Left Sidebar: AST Nodes & SSE Real-time Logs */}
-        <aside className="w-[360px] border-r border-[#e8e4d9] bg-[#faf8f5] flex flex-col relative z-10 shadow-[8px_0_32px_rgba(0,0,0,0.02)]">
+        <aside className="w-[360px] shrink-0 border-r border-[#e8e4d9] bg-[#faf8f5] flex flex-col relative z-10 shadow-[8px_0_32px_rgba(0,0,0,0.02)]">
 
           <div className="p-8 flex-1 flex flex-col gap-8 overflow-y-auto">
             {/* Active Node Targetting & Tool Palette */}
@@ -444,7 +474,7 @@ export default function App() {
           </div>
 
           {/* Bottom Floating Prompt Interface (Absolute to overlay the canvas void space) */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-50">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-80px)] px-0 z-50">
             {attachedDocs.length > 0 && (
               <div className="flex gap-2 mb-2 px-2 overflow-x-auto">
                 {attachedDocs.map((doc, idx) => (
