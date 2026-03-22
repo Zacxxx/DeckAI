@@ -38,7 +38,7 @@ app.post('/api/mcp/execute', async (req: Request, res: Response) => {
                 // Simulating the structural DOM boundaries
                 await page.setContent(`<!DOCTYPE html><html><body style="margin:0; overflow:hidden;">${args.htmlPayload}</body></html>`);
 
-                // 10x Headless layout validation: Detect bounding box clipping
+                // Headless layout validation: Detect bounding box clipping
                 const validationCheck = await page.evaluate(() => {
                     const elements = Array.from(document.querySelectorAll('*'));
                     const badNodes = elements.filter(el => {
@@ -67,7 +67,7 @@ app.post('/api/mcp/execute', async (req: Request, res: Response) => {
                         const style = window.getComputedStyle(el);
                         const margin = parseFloat(style.marginTop) || 0;
                         const padding = parseFloat(style.paddingTop) || 0;
-                        // 8pt Grid verification logic (10x Design System standard)
+                        // 8pt Grid verification logic
                         if (margin > 0 && margin % 8 !== 0) nonGridSnaps++;
                         if (padding > 0 && padding % 8 !== 0) nonGridSnaps++;
                     });

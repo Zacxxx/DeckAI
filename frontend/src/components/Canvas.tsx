@@ -69,7 +69,7 @@ export const Canvas: React.FC<CanvasProps> = ({ format, htmlContent, onNodeSelec
                                     ::-webkit-scrollbar { display: none; }
                                 </style>
                                 <script>
-                                    // 10x Steering Protocol Native Interceptors
+                                    // Steering Protocol Native Interceptors
                                     document.addEventListener('mouseover', (e) => {
                                         if(e.target === document.body || e.target === document.documentElement) return;
                                         e.target.style.outline = '2px solid #06b6d4';
