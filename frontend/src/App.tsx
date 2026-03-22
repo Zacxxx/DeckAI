@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from './components/Canvas';
-import { Undo2, Redo2, MousePointer2, Pen, Eraser, Library, X, Plug, ChevronDown, Download, FileText, Presentation, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Undo2, Redo2, MousePointer2, Pen, Eraser, Library, X, Plug, ChevronDown, Download, FileText, Presentation, Terminal } from 'lucide-react';
 
 export default function App() {
   const [format, setFormat] = useState<'16:9' | 'A4'>('16:9');
@@ -12,7 +12,7 @@ export default function App() {
   const [future, setFuture] = useState<string[]>([]);
 
   // App States
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMonitoringOpen, setIsMonitoringOpen] = useState(false);
   const [isSteering, setIsSteering] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -227,7 +227,22 @@ export default function App() {
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-6 overflow-x-auto">
+          {/* Tools Component Pipeline */}
+          <div className="hidden lg:flex bg-[#f4f1ea] p-1 rounded-full border border-[#e8e4d9]/50 shadow-inner">
+            <button onClick={() => setActiveTool('Select')} className={`px-4 py-1.5 rounded-full flex items-center gap-1.5 text-[11px] tracking-wider uppercase font-bold transition-all duration-300 ${activeTool === 'Select' ? 'bg-[#2c2b29] text-[#10b981] shadow-md' : 'text-[#8b867c] hover:text-[#2c2b29]'}`}>
+              <MousePointer2 size={12} strokeWidth={2.5} /> <span className="hidden xl:inline">Select</span>
+            </button>
+            <button onClick={() => setActiveTool('Draw')} className={`px-4 py-1.5 rounded-full flex items-center gap-1.5 text-[11px] tracking-wider uppercase font-bold transition-all duration-300 ${activeTool === 'Draw' ? 'bg-[#2c2b29] text-[#f59e0b] shadow-md' : 'text-[#8b867c] hover:text-[#2c2b29]'}`}>
+              <Pen size={12} strokeWidth={2.5} /> <span className="hidden xl:inline">Draw</span>
+            </button>
+            <button onClick={() => setActiveTool('Erase')} className={`px-4 py-1.5 rounded-full flex items-center gap-1.5 text-[11px] tracking-wider uppercase font-bold transition-all duration-300 ${activeTool === 'Erase' ? 'bg-[#2c2b29] text-[#ef4444] shadow-md' : 'text-[#8b867c] hover:text-[#2c2b29]'}`}>
+              <Eraser size={12} strokeWidth={2.5} /> <span className="hidden xl:inline">Erase</span>
+            </button>
+          </div>
+
+          <div className="hidden lg:block h-6 w-px bg-[#e8e4d9]" />
+
           <div className="flex bg-[#f4f1ea] p-1 rounded-full border border-[#e8e4d9]/50 shadow-inner">
             <button onClick={() => setFormat('16:9')} className={`px-5 py-1.5 rounded-full text-[11px] tracking-wider uppercase font-bold transition-all duration-300 ${format === '16:9' ? 'bg-[#2c2b29] text-[#faf8f5] shadow-md' : 'text-[#8b867c] hover:text-[#2c2b29]'}`}>
               16:9
@@ -524,6 +539,49 @@ export default function App() {
                 ) : 'Generate'}
               </button>
             </div>
+          </div>
+
+          {/* Floating Agent Telemetry Panel */}
+          <div className="absolute bottom-8 right-8 z-50 flex flex-col items-end gap-3 pointer-events-none">
+            {/* The Terminal Log UI */}
+            {isMonitoringOpen && (
+              <div className="w-80 h-96 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-black/10 flex flex-col pointer-events-auto overflow-hidden animate-in slide-in-from-bottom-8 opacity-100 fade-in duration-300">
+                <div className="px-4 py-3 border-b border-[#e8e4d9] flex justify-between items-center bg-[#faf8f5]/50">
+                  <h2 className="text-[10px] font-bold text-[#8b867c] tracking-[0.2em] uppercase flex items-center gap-2">
+                    System Logs
+                    {isGenerating && <span className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />}
+                  </h2>
+                  <button onClick={() => setIsMonitoringOpen(false)} className="text-[#a8a49c] hover:text-[#555]"><X size={14} strokeWidth={3} /></button>
+                </div>
+                <div className="flex-1 bg-transparent p-3 overflow-y-auto font-mono text-[10px] text-[#8b867c] leading-tight scroll-smooth">
+                  {agentLogs.length === 0 ? (
+                    <p className="text-[#a8a49c]/50 italic text-center mt-10">Waiting for agent compilation...</p>
+                  ) : (
+                    agentLogs.map((log, i) => (
+                      <div key={i} className={`mb-1 break-words ${log.includes('[System]') ? 'text-amber-600 font-semibold' : log.includes('Error') || log.includes('Warning') ? 'text-red-500' : 'text-[#8b867c]'}`}>
+                        {log}
+                      </div>
+                    ))
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+              </div>
+            )}
+
+            {/* The Floating Toggle Button */}
+            <button
+              onClick={() => setIsMonitoringOpen(!isMonitoringOpen)}
+              className="group relative w-12 h-12 bg-[#2c2b29] hover:bg-black text-white rounded-full shadow-2xl border border-[#3e3d3b] flex items-center justify-center transition-all duration-300 pointer-events-auto"
+            >
+              <Terminal size={18} strokeWidth={2.5} />
+              <div className="absolute top-1/2 -translate-y-1/2 right-full mr-3 bg-black text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl">
+                {isMonitoringOpen ? "Close Terminal" : "View Agent Logs"}
+              </div>
+              {/* Active ping if generating */}
+              {!isMonitoringOpen && isGenerating && (
+                <span className="absolute top-0 right-0 w-3 h-3 bg-[#10b981] border-2 border-[#2c2b29] rounded-full animate-pulse" />
+              )}
+            </button>
           </div>
         </section>
       </main>
