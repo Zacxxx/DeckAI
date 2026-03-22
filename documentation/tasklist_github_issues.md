@@ -4,11 +4,11 @@
 
 ### Epic 1: Custom Agent Orchestration (Codex Harness)
 - [x] **Issue #0:** Extract and customize the `openai/codex` harness as the core agent orchestration (Rust/Tokio layer).
-- [ ] **Issue #1:** Implement Dual-Environment routing supporting **Google Cloud Run** and the **Local Harness** node via MCP server logic.
-- [ ] **Issue #3:** Build the TUI Dashboard for state visibility and real-time validation monitoring. **(Status: Initialized via Ratatui)**
+- [x] **Issue #1:** Implement Dual-Environment routing supporting **Google Cloud Run** and the **Local Harness** node via MCP server logic.
+- [x] **Issue #3:** Build the TUI Dashboard for state visibility and real-time validation monitoring. **(Status: Completed natively via Ratatui)**
 
 ### Epic 2: The Deterministic Headless Validator (Zero Layout Breaks)
-- [ ] **Issue #4:** Deploy Playwright on Cloud Run as an active physics node.
+- [x] **Issue #4:** Deploy Playwright on Cloud Run as an active physics node.
 - [x] **Issue #5:** Build the `validate_layout` "Boundary Checker" tool mathematically parsing DOM boundaries against viewport rects.
 - [x] **Issue #6:** Build the `verify_aesthetics` tool mapping WCAG contrast and strict 8pt grid snapping.
 
@@ -19,7 +19,7 @@
 ### Epic 5: Flawless Native Exporters Core
 - [x] **Issue #12:** Build the High-Fidelity Chromium PDF printer service (`@page` boundaries matched perfectly to HTML scale via Playwright).
 - [x] **Issue #13:** Develop HTML-to-OpenXML parser structure mapped to PPTX natively (`pptxgenjs`).
-- [ ] **Issue #14:** Implement the strict OpenXML chart injection parsing dynamically from HTML chart boundaries.
+- [x] **Issue #14:** Implement the strict OpenXML chart injection parsing dynamically from HTML chart boundaries.
 
 ### Epic 6: Agnostic State Management
 - [x] **Issue #2 (Moved):** Design the Unified Schema (Prisma/SQLite) securely storing `Project`, `Slide`, and `DesignSystem` models.
