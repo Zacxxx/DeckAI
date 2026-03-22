@@ -139,12 +139,23 @@ export default function App() {
         <div className="flex items-center gap-6">
           <div className="flex bg-[#f4f1ea] p-1 rounded-full border border-[#e8e4d9]/50 shadow-inner">
             <button onClick={() => setFormat('16:9')} className={`px-5 py-1.5 rounded-full text-[11px] tracking-wider uppercase font-bold transition-all duration-300 ${format === '16:9' ? 'bg-[#2c2b29] text-[#faf8f5] shadow-md' : 'text-[#8b867c] hover:text-[#2c2b29]'}`}>
-              16:9 Presentation
+              16:9
             </button>
             <button onClick={() => setFormat('A4')} className={`px-5 py-1.5 rounded-full text-[11px] tracking-wider uppercase font-bold transition-all duration-300 ${format === 'A4' ? 'bg-[#2c2b29] text-[#faf8f5] shadow-md' : 'text-[#8b867c] hover:text-[#2c2b29]'}`}>
-              A4 Document
+              A4
             </button>
           </div>
+
+          <div className="h-6 w-px bg-[#e8e4d9]" />
+
+          <button onClick={() => {
+            const link = document.createElement('a');
+            link.href = '/deckai-skill.md';
+            link.download = 'deckai-skill.md';
+            link.click();
+          }} className="group flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#10b981]/30 bg-[#10b981]/10 text-[11px] uppercase tracking-wider font-bold text-[#10b981] hover:bg-[#10b981] hover:text-white transition-all duration-300 h-8">
+            🔌 Add Agent Skill
+          </button>
 
           <div className="h-6 w-px bg-[#e8e4d9]" />
 
