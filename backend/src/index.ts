@@ -105,8 +105,8 @@ app.get('/api/stream/:projectId', (req: Request, res: Response) => {
     res.setHeader('Connection', 'keep-alive');
 
     // Maintain connection
-    activeStreams.set(req.params.projectId, res);
-    req.on('close', () => activeStreams.delete(req.params.projectId));
+    activeStreams.set(req.params.projectId as string, res);
+    req.on('close', () => activeStreams.delete(req.params.projectId as string));
 });
 
 app.post('/api/generate', async (req: Request, res: Response) => {
@@ -168,7 +168,7 @@ app.get('/api/components', async (req: Request, res: Response) => {
 
 // --- Epic 5 Exporters: High-Fidelity Chromium PDF Printer ---
 app.get('/api/export/pdf/:projectId', async (req: Request, res: Response) => {
-    const { projectId } = req.params;
+    const projectId = req.params.projectId as string;
     try {
         // 1. Validate project existence
         const project = await prisma.project.findUnique({ where: { id: projectId }, include: { slides: true } });
@@ -198,7 +198,7 @@ app.get('/api/export/pdf/:projectId', async (req: Request, res: Response) => {
 
 // --- Epic 5 Exporters: HTML-to-OpenXML PPTX Engine ---
 app.get('/api/export/pptx/:projectId', async (req: Request, res: Response) => {
-    const { projectId } = req.params;
+    const projectId = req.params.projectId as string;
     try {
         const project = await prisma.project.findUnique({ where: { id: projectId }, include: { slides: true } });
         if (!project) return res.status(404).json({ error: "Project missing." });
