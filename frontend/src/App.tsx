@@ -379,96 +379,34 @@ export default function App() {
       {/* 🚀 Main Orchestration Stage */}
       <main className="flex-1 relative overflow-hidden flex">
 
-        {/* Left Sidebar: AST Nodes & SSE Real-time Logs */}
-        <aside className={`w-[300px] shrink-0 border-r border-[#e8e4d9] bg-[#faf8f5] flex flex-col relative z-20 shadow-[8px_0_32px_rgba(0,0,0,0.02)] transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] ${isSidebarOpen ? 'ml-0' : '-ml-[300px]'}`}>
+        {/* 🚀 Complete Viewport Scaling Canvas */}
+        <section className="w-full relative shadow-[inset_0_0_120px_rgba(0,0,0,0.015)] bg-[#fdfbf7] flex flex-col">
 
-          <div className="p-8 flex-1 flex flex-col gap-8 overflow-y-auto">
-            {/* Active Node Targetting & Tool Palette */}
-            <div>
-              <h2 className="text-[10px] font-bold text-[#8b867c] tracking-[0.2em] uppercase mb-4 flex items-center justify-between">
-                Tools
-                <span className={`w-1.5 h-1.5 rounded-full ${selectedNode ? 'bg-[#10b981]' : (activeTool !== 'Select' ? 'bg-[#f59e0b]' : 'bg-[#d1d5db]')}`} />
-              </h2>
-
-              <div className="flex gap-3 mb-6">
-                <button onClick={() => setActiveTool('Select')} className={`group relative w-10 h-10 flex items-center justify-center rounded-full transition-all ${activeTool === 'Select' ? 'bg-white text-[#10b981] shadow-md border border-[#10b981]/20' : 'bg-transparent text-[#8b867c] hover:bg-white/60 border border-transparent'}`}>
-                  <MousePointer2 size={16} strokeWidth={2.5} />
-                  <div className="absolute top-full mt-2 bg-black text-white text-[10px] px-2.5 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-xl font-bold tracking-widest uppercase">Select Target</div>
-                </button>
-                <button onClick={() => setActiveTool('Draw')} className={`group relative w-10 h-10 flex items-center justify-center rounded-full transition-all ${activeTool === 'Draw' ? 'bg-white text-[#f59e0b] shadow-md border border-[#f59e0b]/20' : 'bg-transparent text-[#8b867c] hover:bg-white/60 border border-transparent'}`}>
-                  <Pen size={16} strokeWidth={2.5} />
-                  <div className="absolute top-full mt-2 bg-black text-white text-[10px] px-2.5 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-xl font-bold tracking-widest uppercase">Draw Context</div>
-                </button>
-                <button onClick={() => setActiveTool('Erase')} className={`group relative w-10 h-10 flex items-center justify-center rounded-full transition-all ${activeTool === 'Erase' ? 'bg-white text-[#ef4444] shadow-md border border-[#ef4444]/20' : 'bg-transparent text-[#8b867c] hover:bg-white/60 border border-transparent'}`}>
-                  <Eraser size={16} strokeWidth={2.5} />
-                  <div className="absolute top-full mt-2 bg-black text-white text-[10px] px-2.5 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-xl font-bold tracking-widest uppercase">Erase Select</div>
-                </button>
+          {/* Contextual Floating Panel for Selected Node */}
+          {selectedNode && (
+            <div className="absolute top-6 right-6 z-40 w-[280px] bg-white/90 backdrop-blur-xl rounded-2xl p-4 shadow-2xl border border-black/10 flex flex-col gap-3 group animate-in slide-in-from-right-8 opacity-100 fade-in duration-300">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="px-2 py-0.5 rounded bg-[#f4f1ea] text-[#2c2b29] text-[10px] font-mono select-none tracking-wider border border-[#e8e4d9] shadow-sm">&lt;{selectedNode.tag}&gt;</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-[#8b867c] ml-auto">Target Active</span>
               </div>
-
-              <div className="flex flex-col gap-3 group relative">
-                {selectedNode && (
-                  <>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="px-2 py-0.5 rounded bg-[#f4f1ea] text-[#2c2b29] text-[10px] font-mono select-none tracking-wider border border-[#e8e4d9] shadow-sm">&lt;{selectedNode.tag}&gt;</span>
-                    </div>
-                    <div className="bg-white rounded-xl p-3 max-h-32 overflow-hidden relative shadow-sm border border-[#e8e4d9]">
-                      <code className="text-[10px] leading-relaxed font-mono text-[#555] whitespace-pre-wrap break-all">
-                        {selectedNode.html.substring(0, 150)}{selectedNode.html.length > 150 ? '...' : ''}
-                      </code>
-                      <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-white to-transparent" />
-                    </div>
-                    <div className="flex flex-col gap-2 mt-2">
-                      <button onClick={handleSteer} disabled={isSteering} className="w-full bg-[#2c2b29] text-white text-[10px] font-bold uppercase tracking-widest py-2 rounded-xl hover:bg-black transition-colors shadow-sm active:scale-95 flex items-center justify-center gap-2">
-                        {isSteering && <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />}
-                        {isSteering ? "Steering..." : "Isolate & Mutate"}
-                      </button>
-                      <button onClick={handleSaveComponent} disabled={isSaving} className="w-full border border-[#e8e4d9] text-[#2c2b29] bg-white text-[10px] font-bold uppercase tracking-widest py-2 rounded-xl hover:bg-[#f4f1ea] transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2">
-                        {isSaving && <div className="w-3 h-3 border-2 border-[#2c2b29]/20 border-t-[#2c2b29] rounded-full animate-spin" />}
-                        {isSaving ? "Saving..." : "Extract Component"}
-                      </button>
-                    </div>
-                  </>
-                )}
+              <div className="bg-[#faf8f5] rounded-xl p-3 max-h-32 overflow-hidden relative shadow-inner border border-[#e8e4d9]">
+                <code className="text-[10px] leading-relaxed font-mono text-[#555] whitespace-pre-wrap break-all">
+                  {selectedNode.html.substring(0, 150)}{selectedNode.html.length > 150 ? '...' : ''}
+                </code>
+                <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-[#faf8f5] to-transparent" />
+              </div>
+              <div className="flex gap-2.5 mt-2">
+                <button onClick={handleSteer} disabled={isSteering} className="flex-1 bg-[#2c2b29] text-white text-[10px] font-bold uppercase tracking-widest py-2 rounded-xl hover:bg-black transition-colors shadow-sm active:scale-95 flex items-center justify-center gap-2">
+                  {isSteering && <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />}
+                  {isSteering ? "Mutating" : "Mutate"}
+                </button>
+                <button onClick={handleSaveComponent} disabled={isSaving} className="flex-1 border border-[#e8e4d9] text-[#2c2b29] bg-white text-[10px] font-bold uppercase tracking-widest py-2 rounded-xl hover:bg-[#f4f1ea] transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2">
+                  {isSaving && <div className="w-3 h-3 border-2 border-[#2c2b29]/20 border-t-[#2c2b29] rounded-full animate-spin" />}
+                  {isSaving ? "Saving" : "Extract"}
+                </button>
               </div>
             </div>
-
-            {/* Agent Telemetry / SSE Log Stream (Minimized & Condensed) */}
-            <div className="h-40 shrink-0 flex flex-col">
-              <h2 className="text-[10px] font-bold text-[#8b867c] tracking-[0.2em] uppercase mb-2 flex items-center justify-between">
-                Monitoring
-                <div className="relative group cursor-help flex items-center justify-center w-4 h-4">
-                  <span className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
-                  <div className="absolute top-1/2 -translate-y-1/2 right-6 bg-[#2c2b29] text-white text-[10px] px-2.5 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    SSE Stream Active
-                  </div>
-                </div>
-              </h2>
-              <div className="flex-1 bg-transparent border-t border-[#e8e4d9]/50 pt-2 overflow-y-auto font-mono text-[9px] text-[#8b867c] leading-tight scroll-smooth px-1">
-                {agentLogs.length === 0 ? (
-                  <p className="text-[#a8a49c]/50 italic">No activity logs...</p>
-                ) : (
-                  agentLogs.map((log, i) => (
-                    <div key={i} className={`mb-1 truncate ${log.includes('[System]') ? 'text-amber-600 font-semibold' : log.includes('Error') || log.includes('Warning') ? 'text-red-500' : 'text-[#8b867c]'}`}>
-                      {log}
-                    </div>
-                  ))
-                )}
-                <div ref={chatEndRef} />
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        {/* 🚀 Right Workspace: Central Scaling Canvas */}
-        <section className="flex-1 relative shadow-[inset_0_0_120px_rgba(0,0,0,0.015)] bg-[#fdfbf7] flex flex-col">
-
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="absolute top-4 left-4 z-40 p-2 bg-white/50 hover:bg-white backdrop-blur border border-[#e8e4d9] rounded-xl text-[#8b867c] hover:text-[#2c2b29] shadow-sm transition-all"
-            title="Toggle Sidebar"
-          >
-            {isSidebarOpen ? <PanelLeftClose size={18} strokeWidth={2.5} /> : <PanelLeftOpen size={18} strokeWidth={2.5} />}
-          </button>
+          )}
 
           <div className="flex-1 relative max-h-full pb-24 flex items-center justify-center">
 
