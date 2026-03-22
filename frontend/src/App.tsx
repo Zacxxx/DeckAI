@@ -416,8 +416,8 @@ export default function App() {
             <Canvas format={format} htmlContent={html || '<div style="width:100%; height:100%; background:#fff; margin:0;"></div>'} onNodeSelect={setSelectedNode} />
 
             {/* Empty State Hover Overlay */}
-            {!html && (
-              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-40 pb-24">
+            {!html && !isLibraryOpen && (
+              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-30 pb-24">
                 <div className="bg-white/70 backdrop-blur-xl px-12 py-10 rounded-[2.5rem] border border-black/5 shadow-[0_32px_64px_rgba(0,0,0,0.04)] flex flex-col items-center gap-5 transition-opacity duration-700">
                   <div className="relative w-14 h-14 flex items-center justify-center">
                     <div className="absolute inset-0 border-2 border-dashed border-[#e8e4d9] rounded-full animate-[spin_8s_linear_infinite]" />
