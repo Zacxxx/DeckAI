@@ -13,7 +13,7 @@ export default function App() {
   // Data
   const [prompt, setPrompt] = useState("");
   const [agentLogs, setAgentLogs] = useState<string[]>([]);
-  const [html, setHtml] = useState('<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #fdfbf7 0%, #e8e4d9 100%);"><h1 style="color: #2c2b29; font-size: 82px; letter-spacing: -2px; font-weight: 500; margin: 0;">Deck AI Core</h1><p style="color: #8b867c; font-size: 24px; margin-top: 16px;">Agent logic offline. Awaiting prompt.</p></div>');
+  const [html, setHtml] = useState("");
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -212,8 +212,25 @@ export default function App() {
 
         {/* 🚀 Right Workspace: Central Scaling Canvas */}
         <section className="flex-1 relative shadow-[inset_0_0_120px_rgba(0,0,0,0.015)] bg-[#fdfbf7] flex flex-col">
-          <div className="flex-1 relative max-h-full pb-24">
-            <Canvas format={format} htmlContent={html} onNodeSelect={setSelectedNode} />
+          <div className="flex-1 relative max-h-full pb-24 flex items-center justify-center">
+
+            <Canvas format={format} htmlContent={html || '<div style="width:100%; height:100%; background:#fff; margin:0;"></div>'} onNodeSelect={setSelectedNode} />
+
+            {/* Empty State Hover Overlay */}
+            {!html && (
+              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-40 pb-24">
+                <div className="bg-white/70 backdrop-blur-xl px-12 py-10 rounded-[2.5rem] border border-black/5 shadow-[0_32px_64px_rgba(0,0,0,0.04)] flex flex-col items-center gap-5 transition-opacity duration-700">
+                  <div className="relative w-14 h-14 flex items-center justify-center">
+                    <div className="absolute inset-0 border-2 border-dashed border-[#e8e4d9] rounded-full animate-[spin_8s_linear_infinite]" />
+                    <div className="w-3 h-3 bg-[#10b981] rounded-full shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
+                  </div>
+                  <div className="text-center">
+                    <h1 className="text-[22px] font-semibold text-[#2c2b29] tracking-tight mb-1.5">Canvas Awaiting Prompt</h1>
+                    <p className="text-[#8b867c] text-[13px] font-medium tracking-wide">Instruct the agent below to initialize DOM structures.</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Bottom Floating Prompt Interface (Absolute to overlay the canvas void space) */}
