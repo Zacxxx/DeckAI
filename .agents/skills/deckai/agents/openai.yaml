@@ -1,0 +1,13 @@
+interface:
+  display_name: "DeckAI Canvas"
+  short_description: "Agentic slide generation and geometry verification"
+  brand_color: "#10b981"
+policy:
+  allow_implicit_invocation: true
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "deckaiMCP"
+      description: "DeckAI Editor backend server spanning ports 8080"
+      transport: "streamable_http"
+      url: "http://localhost:8080/api/mcp/tools"
