@@ -31,7 +31,7 @@
 ## Project: Frontend (React Canvas)
 
 ### Epic 3: Frontend Steering & Canvas Interactions
-- [ ] **Issue #7:** Build React Canvas integrating strict A4 and 16:9 viewport `iframes` scaling precisely to screen size.
+- [x] **Issue #7:** Build React Canvas integrating strict A4 and 16:9 viewport `iframes` scaling precisely to screen size.
 - [ ] **Issue #8:** Implement DOM selection bounding box logic to isolate nested semantic HTML components dynamically.
 - [ ] **Issue #9:** Wire the localized "Steering Protocol" capturing the mutated DOM subsets and pushing them via the MCP endpoints.
 
