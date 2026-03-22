@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import { spawn } from 'child_process';
 import { PrismaClient } from '@prisma/client';
 import { chromium } from 'playwright';
 import PptxGenJS from 'pptxgenjs';
@@ -79,6 +80,11 @@ app.post('/api/mcp/execute', async (req: Request, res: Response) => {
                         ? "[Aesthetic Check]: Passed. 8pt grid system flawless."
                         : `[Aesthetic Check]: Failed. Detected ${aestheticsCheck.violations} spatial instances violating the strict 8-point baseline grid.`
                 });
+                return res.json({
+                    result: aestheticsCheck.success
+                        ? "[Aesthetic Check]: Passed. 8pt grid system flawless."
+                        : `[Aesthetic Check]: Failed. Detected ${aestheticsCheck.violations} spatial instances violating the strict 8-point baseline grid.`
+                });
             }
             case 'apply_dom_patch':
                 return res.json({ result: `Slide patched: ${args.slideId}` });
@@ -87,6 +93,50 @@ app.post('/api/mcp/execute', async (req: Request, res: Response) => {
         }
     } catch (e: any) {
         return res.status(500).json({ error: e.message });
+    }
+});
+
+// --- Epic 7: Real-Time SSE Agent Streaming (Node -> Rust Mob) ---
+const activeStreams = new Map<string, Response>();
+
+app.get('/api/stream/:projectId', (req: Request, res: Response) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Maintain connection
+    activeStreams.set(req.params.projectId, res);
+    req.on('close', () => activeStreams.delete(req.params.projectId));
+});
+
+app.post('/api/generate', async (req: Request, res: Response) => {
+    const { projectId, prompt, targetNodeHtml } = req.body;
+    const stream = activeStreams.get(projectId);
+
+    try {
+        // Hydrate DB Design tokens to pass as execution axiom
+        const designTokens = await prisma.designSystem.findUnique({ where: { projectId } });
+
+        // Spin up the extracted Rust Codex Harness natively
+        const agentProcess = spawn('cargo', ['run', '--manifest-path', '../agent/Cargo.toml', '--', prompt], {
+            env: { ...process.env, AGENT_TARGET_BOUNDS: targetNodeHtml || "" }
+        });
+
+        agentProcess.stdout.on('data', (chunk) => {
+            if (stream) stream.write(`data: ${JSON.stringify({ log: chunk.toString() })}\n\n`);
+        });
+
+        agentProcess.stderr.on('data', (chunk) => {
+            if (stream) stream.write(`data: ${JSON.stringify({ error: chunk.toString() })}\n\n`);
+        });
+
+        agentProcess.on('close', (code) => {
+            if (stream) stream.write(`data: ${JSON.stringify({ complete: true, exitCode: code })}\n\n`);
+        });
+
+        return res.status(202).json({ status: "Rust Harness Initialization Confirmed. Piping stdout via SSE." });
+    } catch (err: any) {
+        return res.status(500).json({ error: "Failed to spawn Rust Mob harness." });
     }
 });
 
