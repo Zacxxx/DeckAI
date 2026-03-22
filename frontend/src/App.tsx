@@ -14,6 +14,8 @@ export default function App() {
   const [prompt, setPrompt] = useState("");
   const [agentLogs, setAgentLogs] = useState<string[]>([]);
   const [html, setHtml] = useState("");
+  const [attachedDocs, setAttachedDocs] = useState<{ name: string, content: string }[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +40,12 @@ export default function App() {
       await fetch('http://localhost:8080/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId: 'demo-project-id', prompt, targetNodeHtml: selectedNode?.html })
+        body: JSON.stringify({
+          projectId: 'demo-project-id',
+          prompt,
+          targetNodeHtml: selectedNode?.html,
+          attachedContext: attachedDocs
+        })
       });
 
       // 2. Connect to SSE stream
@@ -105,6 +112,17 @@ export default function App() {
       console.error(e);
     } finally {
       setTimeout(() => setIsSaving(false), 600);
+    }
+  };
+
+  // Document Attachment Handler
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const text = await file.text();
+      setAttachedDocs(prev => [...prev, { name: file.name, content: text }]);
     }
   };
 
