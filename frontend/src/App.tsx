@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from './components/Canvas';
+import { Undo2, Redo2, MousePointer2, Pen, Eraser, Library, X } from 'lucide-react';
 
 export default function App() {
   const [format, setFormat] = useState<'16:9' | 'A4'>('16:9');
@@ -27,6 +28,19 @@ export default function App() {
   const [installedAgents, setInstalledAgents] = useState<Record<string, boolean>>({
     'Codex': false, 'Kiro': false, 'Claude Code': false, 'Gemini': false, 'Opencode': false
   });
+
+  // Library Modal State
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [libraryComponents, setLibraryComponents] = useState<any[]>([]);
+
+  const loadLibrary = async () => {
+    setIsLibraryOpen(true);
+    try {
+      const res = await fetch('http://localhost:8080/api/components');
+      const data = await res.json();
+      setLibraryComponents(data);
+    } catch (e) { console.error(e); }
+  };
 
   const handleInstallAgent = async (agentName: string) => {
     try {
@@ -188,10 +202,10 @@ export default function App() {
                 fetch('http://localhost:8080/api/mcp/execute', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tool: 'apply_dom_patch', args: { slideId: 'draft', patchData: previous } }) });
               }}
               disabled={history.length === 0}
-              className="w-8 h-8 rounded-full flex items-center justify-center border border-[#e8e4d9] text-[#8b867c] hover:text-[#2c2b29] hover:bg-[#f4f1ea] disabled:opacity-30 transition-all font-bold"
+              className="w-8 h-8 rounded-full flex items-center justify-center border border-[#e8e4d9] text-[#8b867c] hover:text-[#2c2b29] hover:bg-[#f4f1ea] disabled:opacity-30 transition-all shadow-sm"
               title="Undo"
             >
-              &#x21BA;
+              <Undo2 size={14} strokeWidth={2.5} />
             </button>
             <button
               onClick={() => {
@@ -203,10 +217,10 @@ export default function App() {
                 fetch('http://localhost:8080/api/mcp/execute', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tool: 'apply_dom_patch', args: { slideId: 'draft', patchData: next } }) });
               }}
               disabled={future.length === 0}
-              className="w-8 h-8 rounded-full flex items-center justify-center border border-[#e8e4d9] text-[#8b867c] hover:text-[#2c2b29] hover:bg-[#f4f1ea] disabled:opacity-30 transition-all font-bold"
+              className="w-8 h-8 rounded-full flex items-center justify-center border border-[#e8e4d9] text-[#8b867c] hover:text-[#2c2b29] hover:bg-[#f4f1ea] disabled:opacity-30 transition-all shadow-sm"
               title="Redo"
             >
-              &#x21BB;
+              <Redo2 size={14} strokeWidth={2.5} />
             </button>
           </div>
         </div>
@@ -223,38 +237,43 @@ export default function App() {
 
           <div className="h-6 w-px bg-[#e8e4d9]" />
 
-          <div className="relative">
-            <button
-              onClick={() => setIsAgentMenuOpen(!isAgentMenuOpen)}
-              className="group flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#10b981]/30 bg-[#10b981]/10 text-[11px] uppercase tracking-wider font-bold text-[#10b981] hover:bg-[#10b981] hover:text-white transition-all duration-300 h-8"
-            >
-              🔌 Agent Skills
+          <div className="flex items-center gap-2">
+            <button onClick={loadLibrary} className="group flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#e8e4d9] text-[11px] uppercase tracking-wider font-bold text-[#555] hover:bg-[#e8e4d9] hover:text-[#2c2b29] transition-all duration-300 h-8">
+              <Library size={12} strokeWidth={2.5} /> Library
             </button>
+            <div className="relative">
+              <button
+                onClick={() => setIsAgentMenuOpen(!isAgentMenuOpen)}
+                className="group flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#10b981]/30 bg-[#10b981]/10 text-[11px] uppercase tracking-wider font-bold text-[#10b981] hover:bg-[#10b981] hover:text-white transition-all duration-300 h-8"
+              >
+                🔌 Agent Skills
+              </button>
 
-            {isAgentMenuOpen && (
-              <div className="absolute top-full mt-3 right-0 w-64 bg-white/95 backdrop-blur-xl border border-black/10 shadow-[0_16px_48px_rgba(0,0,0,0.12)] rounded-2xl p-2 z-50 flex flex-col gap-1">
-                <div className="px-3 pt-2 pb-1">
-                  <span className="text-[10px] font-bold text-[#8b867c] tracking-widest uppercase">Supported CLI Agents</span>
+              {isAgentMenuOpen && (
+                <div className="absolute top-full mt-3 right-0 w-64 bg-white/95 backdrop-blur-xl border border-black/10 shadow-[0_16px_48px_rgba(0,0,0,0.12)] rounded-2xl p-2 z-50 flex flex-col gap-1">
+                  <div className="px-3 pt-2 pb-1">
+                    <span className="text-[10px] font-bold text-[#8b867c] tracking-widest uppercase">Supported CLI Agents</span>
+                  </div>
+                  {Object.keys(installedAgents).map(agent => (
+                    <button
+                      key={agent}
+                      onClick={() => !installedAgents[agent] && handleInstallAgent(agent)}
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 text-left ${installedAgents[agent] ? 'cursor-default bg-[#10b981]/5 text-[#2c2b29]' : 'hover:bg-[#f4f1ea] text-[#555]'}`}
+                    >
+                      <span className={`text-[13px] font-medium ${installedAgents[agent] ? 'text-[#10b981]' : ''}`}>{agent}</span>
+                      {installedAgents[agent] ? (
+                        <div className="flex items-center gap-1.5 text-[#10b981]">
+                          <span className="text-[10px] font-bold uppercase tracking-wider">Installed</span>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] font-bold text-[#a8a49c] uppercase tracking-wider group-hover:text-[#2c2b29]">Install</span>
+                      )}
+                    </button>
+                  ))}
                 </div>
-                {Object.keys(installedAgents).map(agent => (
-                  <button
-                    key={agent}
-                    onClick={() => !installedAgents[agent] && handleInstallAgent(agent)}
-                    className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 text-left ${installedAgents[agent] ? 'cursor-default bg-[#10b981]/5 text-[#2c2b29]' : 'hover:bg-[#f4f1ea] text-[#555]'}`}
-                  >
-                    <span className={`text-[13px] font-medium ${installedAgents[agent] ? 'text-[#10b981]' : ''}`}>{agent}</span>
-                    {installedAgents[agent] ? (
-                      <div className="flex items-center gap-1.5 text-[#10b981]">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Installed</span>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
-                      </div>
-                    ) : (
-                      <span className="text-[10px] font-bold text-[#a8a49c] uppercase tracking-wider group-hover:text-[#2c2b29]">Install</span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <div className="h-6 w-px bg-[#e8e4d9]" />
@@ -269,6 +288,47 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      {/* Component Library Overlay */}
+      {isLibraryOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-12">
+          <div className="bg-[#faf8f5] w-full max-w-5xl h-full max-h-[80vh] rounded-[2rem] shadow-2xl border border-black/10 flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between px-8 py-6 border-b border-[#e8e4d9]">
+              <div className="flex items-center gap-3">
+                <Library className="text-[#10b981]" size={24} strokeWidth={2.5} />
+                <h2 className="text-xl font-bold tracking-tight text-[#2c2b29]">Generated Component Library</h2>
+              </div>
+              <button onClick={() => setIsLibraryOpen(false)} className="w-10 h-10 flex items-center justify-center bg-[#e8e4d9]/50 hover:bg-[#e8e4d9] rounded-full text-[#555] transition-colors">
+                <X size={18} strokeWidth={2.5} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-8 grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {libraryComponents.length === 0 ? (
+                <div className="col-span-full py-24 flex items-center justify-center text-[#8b867c] font-medium tracking-wide">No UI components have been extracted into SQLite yet.</div>
+              ) : (
+                libraryComponents.map(comp => (
+                  <div key={comp.id} className="bg-white rounded-2xl border border-[#e8e4d9] shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                    <div className="h-32 bg-[#f4f1ea] border-b border-[#e8e4d9] relative overflow-hidden pointer-events-none flex items-center justify-center p-4">
+                      <div className="scale-50 origin-center truncate opacity-70" dangerouslySetInnerHTML={{ __html: comp.htmlPayload.substring(0, 400) }}></div>
+                    </div>
+                    <div className="p-4 flex-1">
+                      <h3 className="font-bold text-[#2c2b29] text-sm mb-1 line-clamp-1">{comp.name}</h3>
+                      <p className="text-[10px] text-[#8b867c] font-mono tracking-widest">ID: {comp.id.substring(0, 8)}</p>
+                    </div>
+                    <div className="p-4 pt-0">
+                      <button onClick={() => {
+                        setHtml(comp.htmlPayload);
+                        setIsLibraryOpen(false);
+                        fetch('http://localhost:8080/api/mcp/execute', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tool: 'apply_dom_patch', args: { slideId: 'draft', patchData: comp.htmlPayload } }) });
+                      }} className="w-full py-2 bg-[#f4f1ea] hover:bg-[#10b981] hover:text-white text-[#2c2b29] text-[10px] uppercase tracking-widest font-bold rounded-xl transition-colors duration-300">Mount to Canvas</button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 🚀 Main Orchestration Stage */}
       <main className="flex-1 relative overflow-hidden flex">
@@ -285,9 +345,18 @@ export default function App() {
               </h2>
 
               <div className="bg-[#2c2b29] p-2 rounded-2xl shadow-xl border border-[#3e3d3b] mb-4 flex justify-between gap-1">
-                <button onClick={() => setActiveTool('Select')} className={`flex-1 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${activeTool === 'Select' ? 'bg-[#10b981]/20 text-[#10b981]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>Select</button>
-                <button onClick={() => setActiveTool('Draw')} className={`flex-1 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${activeTool === 'Draw' ? 'bg-[#f59e0b]/20 text-[#f59e0b]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>Draw</button>
-                <button onClick={() => setActiveTool('Erase')} className={`flex-1 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${activeTool === 'Erase' ? 'bg-[#ef4444]/20 text-[#ef4444]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>Erase</button>
+                <button onClick={() => setActiveTool('Select')} className={`group relative flex-1 flex justify-center py-2.5 rounded-xl transition-all ${activeTool === 'Select' ? 'bg-[#10b981]/20 text-[#10b981]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>
+                  <MousePointer2 size={15} strokeWidth={2.5} />
+                  <div className="absolute top-full mt-2 bg-black text-white text-[10px] px-2.5 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-xl font-bold tracking-widest uppercase">Select Target</div>
+                </button>
+                <button onClick={() => setActiveTool('Draw')} className={`group relative flex-1 flex justify-center py-2.5 rounded-xl transition-all ${activeTool === 'Draw' ? 'bg-[#f59e0b]/20 text-[#f59e0b]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>
+                  <Pen size={15} strokeWidth={2.5} />
+                  <div className="absolute top-full mt-2 bg-black text-white text-[10px] px-2.5 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-xl font-bold tracking-widest uppercase">Draw Context</div>
+                </button>
+                <button onClick={() => setActiveTool('Erase')} className={`group relative flex-1 flex justify-center py-2.5 rounded-xl transition-all ${activeTool === 'Erase' ? 'bg-[#ef4444]/20 text-[#ef4444]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>
+                  <Eraser size={15} strokeWidth={2.5} />
+                  <div className="absolute top-full mt-2 bg-black text-white text-[10px] px-2.5 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-xl font-bold tracking-widest uppercase">Erase Select</div>
+                </button>
               </div>
 
               <div className="bg-[#2c2b29] p-5 rounded-2xl shadow-xl border border-[#3e3d3b] flex flex-col gap-3 group relative overflow-hidden">
