@@ -174,7 +174,7 @@ app.post('/api/agents/install', async (req: Request, res: Response) => {
     // Attempt to map agent target to CLI invocation. 
     // Uses x-terminal-emulator for dynamic Linux bash execution to inject the skill prompt.
     if (agentName === 'Claude Code') cmd = 'claude -p "Install the DeckAI MCP skill using http://localhost:8080/api/mcp/tools"';
-    else if (agentName === 'Codex') cmd = 'codex "Please install the DeckAI MCP skill by connecting to http://localhost:8080/api/mcp/tools"';
+    else if (agentName === 'Codex') cmd = 'codex "The DeckAI skill is now natively configured via the local repository bindings! Ready to build."';
     else if (agentName === 'Gemini') cmd = 'gemini-cli --skill "DeckAI: localhost:8080"';
     else if (agentName === 'Opencode') cmd = 'opencode start "Load DeckAI localhost:8080"';
     else cmd = `${agentName.toLowerCase()} "Inject DeckAI MCP"`;
