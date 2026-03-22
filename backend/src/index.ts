@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { spawn } from 'child_process';
+import os from 'os';
 import path from 'path';
 import { PrismaClient } from '@prisma/client';
 import { chromium } from 'playwright';
@@ -181,7 +182,7 @@ app.post('/api/agents/install', async (req: Request, res: Response) => {
     else cmd = `${agentName.toLowerCase()} "Inject DeckAI MCP"`;
 
     try {
-        const rootPath = path.resolve(process.cwd(), '..');
+        const rootPath = os.homedir();
         const terminalSpawner = spawn('x-terminal-emulator', ['-e', `bash -c '${cmd}; exec bash'`], { cwd: rootPath });
         terminalSpawner.unref();
         res.status(200).json({ status: "Terminal spawned successfully at root layer." });
