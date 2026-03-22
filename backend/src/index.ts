@@ -42,6 +42,22 @@ app.post('/api/mcp/execute', async (req: Request, res: Response) => {
     }
 });
 
+// --- Epic 6: Component DB Storage ---
+app.post('/api/components', async (req: Request, res: Response) => {
+    try {
+        const { name, htmlPayload } = req.body;
+        if (!htmlPayload) return res.status(400).json({ error: "Agent Usability Law Failure: htmlPayload missing." });
+        const component = await prisma.component.create({ data: { name: name || "Untitled Parameterized Component", htmlPayload } });
+        res.status(201).json(component);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/components', async (req: Request, res: Response) => {
+    try {
+        res.json(await prisma.component.findMany({ orderBy: { createdAt: 'desc' } }));
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+});
+
 // --- Epic 5 Exporters: High-Fidelity Chromium PDF Printer ---
 app.get('/api/export/pdf/:projectId', async (req: Request, res: Response) => {
     const { projectId } = req.params;

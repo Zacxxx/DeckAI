@@ -5,6 +5,7 @@ export default function App() {
   const [format, setFormat] = useState<'16:9' | 'A4'>('16:9');
   const [selectedNode, setSelectedNode] = useState<{ html: string, tag: string } | null>(null);
   const [isSteering, setIsSteering] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [html, setHtml] = useState('<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #fdfbf7 0%, #e8e4d9 100%);"><h1 style="color: #2c2b29; font-size: 82px; letter-spacing: -2px; font-weight: 500; margin: 0;">Deck AI Canvas Ready</h1><p style="color: #8b867c; font-size: 24px; margin-top: 16px;">Hover over any element here to steer.</p></div>');
 
   const handleSteer = async () => {
@@ -25,6 +26,36 @@ export default function App() {
       console.error("MCP Binding Route Failed:", e);
     } finally {
       setTimeout(() => setIsSteering(false), 600);
+    }
+  };
+
+  const handleSaveComponent = async () => {
+    if (!selectedNode) return;
+    setIsSaving(true);
+    try {
+      // Epic 4 10x Intelligent Parser: RegEx AST stripping layer
+      // Extracts raw hardcoded text nodes and parameterizes them into {{token_X}}
+      let numTokens = 0;
+      const parsedHtml = selectedNode.html.replace(/>([^<]+)</g, (match, textContent) => {
+        if (textContent.trim().length === 0) return match;
+        numTokens++;
+        return `>{{token_${numTokens}}}_str<`;
+      });
+
+      const res = await fetch('http://localhost:8080/api/components', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${selectedNode.tag.toUpperCase()}_Param_Component`,
+          htmlPayload: parsedHtml
+        })
+      });
+      const data = await res.json();
+      console.log("Parameterized Component DB Record:", data);
+    } catch (e) {
+      console.error("Component Sync Failed:", e);
+    } finally {
+      setTimeout(() => setIsSaving(false), 600);
     }
   };
 
@@ -88,6 +119,13 @@ export default function App() {
                     className="w-full mt-2 bg-white flex justify-center items-center text-[#2c2b29] text-xs font-bold uppercase tracking-wider py-2.5 rounded-xl hover:bg-[#f4f1ea] transition-colors active:scale-95 disabled:opacity-50"
                   >
                     {isSteering ? 'Piping to Node MCP...' : 'Steer Component'}
+                  </button>
+                  <button
+                    onClick={handleSaveComponent}
+                    disabled={isSaving}
+                    className="w-full mt-1 border border-[#4a4946] bg-transparent text-[#e8e4d9] flex justify-center items-center text-xs font-bold uppercase tracking-wider py-2.5 rounded-xl hover:bg-[#3e3d3b] transition-colors active:scale-95 disabled:opacity-50"
+                  >
+                    {isSaving ? 'Extracting AST...' : 'Extract & Save UI Component'}
                   </button>
                 </>
               ) : (
