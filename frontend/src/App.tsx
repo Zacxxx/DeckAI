@@ -4,6 +4,11 @@ import { Canvas } from './components/Canvas';
 export default function App() {
   const [format, setFormat] = useState<'16:9' | 'A4'>('16:9');
   const [selectedNode, setSelectedNode] = useState<{ html: string, tag: string } | null>(null);
+  const [activeTool, setActiveTool] = useState<'Select' | 'Draw' | 'Erase'>('Select');
+
+  // History Stack
+  const [history, setHistory] = useState<string[]>([]);
+  const [future, setFuture] = useState<string[]>([]);
 
   // App States
   const [isSteering, setIsSteering] = useState(false);
@@ -79,6 +84,18 @@ export default function App() {
             setAgentLogs(prev => [...prev, `[System]: Compile successful. Code ${data.exitCode}`]);
             eventSource.close();
             setIsGenerating(false);
+            // On complete, store current buffer cleanly into history (simulated fetch of new DB state)
+            // Note: Since agent generation happens out-of-band via Rust, we patch a simulated result locally to trigger UI updates
+            const mockGenerated = html + `<div style="padding:20px; border:1px solid #ccc; background:#fff; margin-top:20px;">[Generated via Prompt] ${prompt}</div>`;
+            setHistory(prev => [...prev, html]);
+            setFuture([]);
+            setHtml(mockGenerated);
+            // Sync with backend natively
+            fetch('http://localhost:8080/api/mcp/execute', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ tool: 'apply_dom_patch', args: { slideId: 'draft', patchData: mockGenerated } })
+            });
           }
         } catch (err) {
           setAgentLogs(prev => [...prev, `[Raw Stream]: ${e.data}`]);
@@ -151,9 +168,47 @@ export default function App() {
 
       {/* 🚀 Header: Classy Beige Minimalist */}
       <header className="h-16 border-b border-[#e8e4d9] flex items-center justify-between px-8 bg-white/50 backdrop-blur-xl z-20">
-        <div className="flex items-center gap-3 group cursor-pointer">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#2c2b29] group-hover:bg-[#10b981] transition-colors duration-500 shadow-sm" />
-          <h1 className="font-semibold tracking-tight text-lg text-[#2c2b29]">Deck AI</h1>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 group cursor-pointer">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#2c2b29] group-hover:bg-[#10b981] transition-colors duration-500 shadow-sm" />
+            <h1 className="font-semibold tracking-tight text-lg text-[#2c2b29]">Deck AI</h1>
+          </div>
+
+          <div className="h-6 w-px bg-[#e8e4d9]" />
+
+          {/* Undo / Redo Actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (history.length === 0) return;
+                const previous = history[history.length - 1];
+                setFuture(prev => [html, ...prev]);
+                setHistory(prev => prev.slice(0, -1));
+                setHtml(previous);
+                fetch('http://localhost:8080/api/mcp/execute', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tool: 'apply_dom_patch', args: { slideId: 'draft', patchData: previous } }) });
+              }}
+              disabled={history.length === 0}
+              className="w-8 h-8 rounded-full flex items-center justify-center border border-[#e8e4d9] text-[#8b867c] hover:text-[#2c2b29] hover:bg-[#f4f1ea] disabled:opacity-30 transition-all font-bold"
+              title="Undo"
+            >
+              &#x21BA;
+            </button>
+            <button
+              onClick={() => {
+                if (future.length === 0) return;
+                const next = future[0];
+                setHistory(prev => [...prev, html]);
+                setFuture(prev => prev.slice(1));
+                setHtml(next);
+                fetch('http://localhost:8080/api/mcp/execute', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tool: 'apply_dom_patch', args: { slideId: 'draft', patchData: next } }) });
+              }}
+              disabled={future.length === 0}
+              className="w-8 h-8 rounded-full flex items-center justify-center border border-[#e8e4d9] text-[#8b867c] hover:text-[#2c2b29] hover:bg-[#f4f1ea] disabled:opacity-30 transition-all font-bold"
+              title="Redo"
+            >
+              &#x21BB;
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-6">
@@ -222,12 +277,19 @@ export default function App() {
         <aside className="w-[360px] border-r border-[#e8e4d9] bg-[#faf8f5] flex flex-col relative z-10 shadow-[8px_0_32px_rgba(0,0,0,0.02)]">
 
           <div className="p-8 flex-1 flex flex-col gap-8 overflow-y-auto">
-            {/* Active Node Targetting */}
+            {/* Active Node Targetting & Tool Palette */}
             <div>
               <h2 className="text-[10px] font-bold text-[#8b867c] tracking-[0.2em] uppercase mb-4 flex items-center justify-between">
                 Tools
-                <span className={`w-1.5 h-1.5 rounded-full ${selectedNode ? 'bg-[#10b981]' : 'bg-[#d1d5db]'}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${selectedNode ? 'bg-[#10b981]' : (activeTool !== 'Select' ? 'bg-[#f59e0b]' : 'bg-[#d1d5db]')}`} />
               </h2>
+
+              <div className="bg-[#2c2b29] p-2 rounded-2xl shadow-xl border border-[#3e3d3b] mb-4 flex justify-between gap-1">
+                <button onClick={() => setActiveTool('Select')} className={`flex-1 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${activeTool === 'Select' ? 'bg-[#10b981]/20 text-[#10b981]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>Select</button>
+                <button onClick={() => setActiveTool('Draw')} className={`flex-1 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${activeTool === 'Draw' ? 'bg-[#f59e0b]/20 text-[#f59e0b]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>Draw</button>
+                <button onClick={() => setActiveTool('Erase')} className={`flex-1 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${activeTool === 'Erase' ? 'bg-[#ef4444]/20 text-[#ef4444]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>Erase</button>
+              </div>
+
               <div className="bg-[#2c2b29] p-5 rounded-2xl shadow-xl border border-[#3e3d3b] flex flex-col gap-3 group relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
 
@@ -262,9 +324,9 @@ export default function App() {
               </div>
             </div>
 
-            {/* Agent Telemetry / SSE Log Stream */}
-            <div className="flex-1 flex flex-col min-h-0">
-              <h2 className="text-[10px] font-bold text-[#8b867c] tracking-[0.2em] uppercase mb-3 flex items-center justify-between">
+            {/* Agent Telemetry / SSE Log Stream (Minimized & Condensed) */}
+            <div className="h-40 shrink-0 flex flex-col">
+              <h2 className="text-[10px] font-bold text-[#8b867c] tracking-[0.2em] uppercase mb-2 flex items-center justify-between">
                 Monitoring
                 <div className="relative group cursor-help flex items-center justify-center w-4 h-4">
                   <span className="w-2 h-2 rounded-full bg-[#10b981] shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
@@ -273,12 +335,12 @@ export default function App() {
                   </div>
                 </div>
               </h2>
-              <div className="flex-1 bg-white border border-[#e8e4d9] rounded-2xl shadow-sm p-4 overflow-y-auto font-mono text-[10px] text-[#555] leading-relaxed relative scroll-smooth">
+              <div className="flex-1 bg-transparent border-t border-[#e8e4d9]/50 pt-2 overflow-y-auto font-mono text-[9px] text-[#8b867c] leading-tight scroll-smooth px-1">
                 {agentLogs.length === 0 ? (
-                  <p className="text-[#a8a49c] italic absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center">No active orchestrations...</p>
+                  <p className="text-[#a8a49c]/50 italic">No activity logs...</p>
                 ) : (
                   agentLogs.map((log, i) => (
-                    <div key={i} className={`mb-1.5 ${log.includes('[System]') ? 'text-amber-600 font-semibold' : log.includes('Error') || log.includes('Warning') ? 'text-red-500 font-bold' : 'text-[#555]'}`}>
+                    <div key={i} className={`mb-1 truncate ${log.includes('[System]') ? 'text-amber-600 font-semibold' : log.includes('Error') || log.includes('Warning') ? 'text-red-500' : 'text-[#8b867c]'}`}>
                       {log}
                     </div>
                   ))
