@@ -374,17 +374,17 @@ export default function App() {
                 <span className={`w-1.5 h-1.5 rounded-full ${selectedNode ? 'bg-[#10b981]' : (activeTool !== 'Select' ? 'bg-[#f59e0b]' : 'bg-[#d1d5db]')}`} />
               </h2>
 
-              <div className="bg-[#2c2b29] p-2 rounded-2xl shadow-xl border border-[#3e3d3b] mb-4 flex justify-between gap-1">
-                <button onClick={() => setActiveTool('Select')} className={`group relative flex-1 flex justify-center py-2.5 rounded-xl transition-all ${activeTool === 'Select' ? 'bg-[#10b981]/20 text-[#10b981]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>
-                  <MousePointer2 size={15} strokeWidth={2.5} />
+              <div className="flex gap-3 mb-6">
+                <button onClick={() => setActiveTool('Select')} className={`group relative w-10 h-10 flex items-center justify-center rounded-full transition-all ${activeTool === 'Select' ? 'bg-white text-[#10b981] shadow-md border border-[#10b981]/20' : 'bg-transparent text-[#8b867c] hover:bg-white/60 border border-transparent'}`}>
+                  <MousePointer2 size={16} strokeWidth={2.5} />
                   <div className="absolute top-full mt-2 bg-black text-white text-[10px] px-2.5 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-xl font-bold tracking-widest uppercase">Select Target</div>
                 </button>
-                <button onClick={() => setActiveTool('Draw')} className={`group relative flex-1 flex justify-center py-2.5 rounded-xl transition-all ${activeTool === 'Draw' ? 'bg-[#f59e0b]/20 text-[#f59e0b]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>
-                  <Pen size={15} strokeWidth={2.5} />
+                <button onClick={() => setActiveTool('Draw')} className={`group relative w-10 h-10 flex items-center justify-center rounded-full transition-all ${activeTool === 'Draw' ? 'bg-white text-[#f59e0b] shadow-md border border-[#f59e0b]/20' : 'bg-transparent text-[#8b867c] hover:bg-white/60 border border-transparent'}`}>
+                  <Pen size={16} strokeWidth={2.5} />
                   <div className="absolute top-full mt-2 bg-black text-white text-[10px] px-2.5 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-xl font-bold tracking-widest uppercase">Draw Context</div>
                 </button>
-                <button onClick={() => setActiveTool('Erase')} className={`group relative flex-1 flex justify-center py-2.5 rounded-xl transition-all ${activeTool === 'Erase' ? 'bg-[#ef4444]/20 text-[#ef4444]' : 'text-[#8b867c] hover:bg-[#3e3d3b] hover:text-[#e8e4d9]'}`}>
-                  <Eraser size={15} strokeWidth={2.5} />
+                <button onClick={() => setActiveTool('Erase')} className={`group relative w-10 h-10 flex items-center justify-center rounded-full transition-all ${activeTool === 'Erase' ? 'bg-white text-[#ef4444] shadow-md border border-[#ef4444]/20' : 'bg-transparent text-[#8b867c] hover:bg-white/60 border border-transparent'}`}>
+                  <Eraser size={16} strokeWidth={2.5} />
                   <div className="absolute top-full mt-2 bg-black text-white text-[10px] px-2.5 py-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap shadow-xl font-bold tracking-widest uppercase">Erase Select</div>
                 </button>
               </div>
