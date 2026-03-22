@@ -247,7 +247,7 @@ export default function App() {
                 onClick={() => setIsAgentMenuOpen(!isAgentMenuOpen)}
                 className="group flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#10b981]/30 bg-[#10b981]/10 text-[11px] uppercase tracking-wider font-bold text-[#10b981] hover:bg-[#10b981] hover:text-white transition-all duration-300 h-8"
               >
-                🔌 Agent Skills
+                <Plug size={12} strokeWidth={2.5} /> Connect
               </button>
 
               {isAgentMenuOpen && (
@@ -389,36 +389,29 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="bg-[#2c2b29] p-5 rounded-2xl shadow-xl border border-[#3e3d3b] flex flex-col gap-3 group relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
-
-                {selectedNode ? (
+              <div className="flex flex-col gap-3 group relative">
+                {selectedNode && (
                   <>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="px-2 py-0.5 rounded bg-[#4a4946] text-white text-[10px] font-mono select-none tracking-wider opacity-90 border border-white/10 shadow-sm">&lt;{selectedNode.tag}&gt;</span>
+                      <span className="px-2 py-0.5 rounded bg-[#f4f1ea] text-[#2c2b29] text-[10px] font-mono select-none tracking-wider border border-[#e8e4d9] shadow-sm">&lt;{selectedNode.tag}&gt;</span>
                     </div>
-                    <div className="bg-[#1c1b1a] rounded-lg p-3 max-h-32 overflow-hidden relative shadow-inner border border-black/20">
-                      <code className="text-[10px] leading-relaxed font-mono text-cyan-400 whitespace-pre-wrap break-all opacity-80">
+                    <div className="bg-white rounded-xl p-3 max-h-32 overflow-hidden relative shadow-sm border border-[#e8e4d9]">
+                      <code className="text-[10px] leading-relaxed font-mono text-[#555] whitespace-pre-wrap break-all">
                         {selectedNode.html.substring(0, 150)}{selectedNode.html.length > 150 ? '...' : ''}
                       </code>
-                      <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-[#1c1b1a] to-transparent" />
+                      <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-white to-transparent" />
                     </div>
-                    <div className="flex flex-col gap-1.5 mt-2">
-                      <button onClick={handleSteer} disabled={isSteering} className="w-full bg-[#faf8f5] text-[#2c2b29] text-[10px] font-bold uppercase tracking-widest py-2 rounded-xl hover:bg-white transition-colors active:scale-95 shadow-sm hover:shadow">
+                    <div className="flex flex-col gap-2 mt-2">
+                      <button onClick={handleSteer} disabled={isSteering} className="w-full bg-[#2c2b29] text-white text-[10px] font-bold uppercase tracking-widest py-2 rounded-xl hover:bg-black transition-colors shadow-sm active:scale-95 flex items-center justify-center gap-2">
+                        {isSteering && <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" />}
                         {isSteering ? "Steering..." : "Isolate & Mutate"}
                       </button>
-                      <button onClick={handleSaveComponent} disabled={isSaving} className="w-full border border-[#4a4946] text-[#e8e4d9] opacity-70 hover:opacity-100 text-[10px] font-bold uppercase tracking-widest py-2 rounded-xl hover:bg-[#3e3d3b] transition-all active:scale-95">
+                      <button onClick={handleSaveComponent} disabled={isSaving} className="w-full border border-[#e8e4d9] text-[#2c2b29] bg-white text-[10px] font-bold uppercase tracking-widest py-2 rounded-xl hover:bg-[#f4f1ea] transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2">
+                        {isSaving && <div className="w-3 h-3 border-2 border-[#2c2b29]/20 border-t-[#2c2b29] rounded-full animate-spin" />}
                         {isSaving ? "Saving..." : "Extract Component"}
                       </button>
                     </div>
                   </>
-                ) : (
-                  <div className="py-6 flex flex-col items-center gap-3">
-                    <div className="w-8 h-8 rounded-full border border-dashed border-[#555] flex items-center justify-center">
-                      <div className="w-1 h-1 bg-[#555] rounded-full animate-pulse" />
-                    </div>
-                    <p className="text-[11px] text-[#8b867c] font-medium text-center">Crosshair inactive. Click any node<br />in the viewport to mount DOM.</p>
-                  </div>
                 )}
               </div>
             </div>
