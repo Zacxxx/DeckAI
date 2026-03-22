@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from './components/Canvas';
-import { Undo2, Redo2, MousePointer2, Pen, Eraser, Library, X, Plug, ChevronDown, Download, FileText, Presentation } from 'lucide-react';
+import { Undo2, Redo2, MousePointer2, Pen, Eraser, Library, X, Plug, ChevronDown, Download, FileText, Presentation, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 
 export default function App() {
   const [format, setFormat] = useState<'16:9' | 'A4'>('16:9');
@@ -12,6 +12,7 @@ export default function App() {
   const [future, setFuture] = useState<string[]>([]);
 
   // App States
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSteering, setIsSteering] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -364,7 +365,7 @@ export default function App() {
       <main className="flex-1 relative overflow-hidden flex">
 
         {/* Left Sidebar: AST Nodes & SSE Real-time Logs */}
-        <aside className="w-[300px] shrink-0 border-r border-[#e8e4d9] bg-[#faf8f5] flex flex-col relative z-10 shadow-[8px_0_32px_rgba(0,0,0,0.02)]">
+        <aside className={`w-[300px] shrink-0 border-r border-[#e8e4d9] bg-[#faf8f5] flex flex-col relative z-20 shadow-[8px_0_32px_rgba(0,0,0,0.02)] transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] ${isSidebarOpen ? 'ml-0' : '-ml-[300px]'}`}>
 
           <div className="p-8 flex-1 flex flex-col gap-8 overflow-y-auto">
             {/* Active Node Targetting & Tool Palette */}
@@ -445,6 +446,15 @@ export default function App() {
 
         {/* 🚀 Right Workspace: Central Scaling Canvas */}
         <section className="flex-1 relative shadow-[inset_0_0_120px_rgba(0,0,0,0.015)] bg-[#fdfbf7] flex flex-col">
+
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="absolute top-4 left-4 z-40 p-2 bg-white/50 hover:bg-white backdrop-blur border border-[#e8e4d9] rounded-xl text-[#8b867c] hover:text-[#2c2b29] shadow-sm transition-all"
+            title="Toggle Sidebar"
+          >
+            {isSidebarOpen ? <PanelLeftClose size={18} strokeWidth={2.5} /> : <PanelLeftOpen size={18} strokeWidth={2.5} />}
+          </button>
+
           <div className="flex-1 relative max-h-full pb-24 flex items-center justify-center">
 
             <Canvas format={format} htmlContent={html || '<div style="width:100%; height:100%; background:#fff; margin:0;"></div>'} onNodeSelect={setSelectedNode} />
