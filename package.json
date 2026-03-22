@@ -1,14 +1,14 @@
 {
     "name": "deckai-monorepo",
+    "version": "1.0.0",
     "private": true,
     "scripts": {
-        "dev": "concurrently \"bun run frontend\" \"bun run backend\" \"bun run agent\"",
-        "full": "bun run dev",
-        "frontend": "cd frontend && bun run dev",
-        "backend": "cd backend && bun run dev",
-        "agent": "cd agent && bun run dev"
+        "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+        "dev:frontend": "cd frontend && npm run dev",
+        "dev:backend": "cd backend && npm run start",
+        "seed": "cd backend && npx prisma db seed"
     },
     "devDependencies": {
-        "concurrently": "^8.2.2"
+        "concurrently": "^8.2.0"
     }
 }
