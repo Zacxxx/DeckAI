@@ -3,9 +3,10 @@ import React, { useRef, useEffect, useState } from 'react';
 interface CanvasProps {
     format: '16:9' | 'A4';
     htmlContent: string;
+    onNodeSelect?: (payload: { html: string, tag: string }) => void;
 }
 
-export const Canvas: React.FC<CanvasProps> = ({ format, htmlContent }) => {
+export const Canvas: React.FC<CanvasProps> = ({ format, htmlContent, onNodeSelect }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(1);
 
@@ -27,8 +28,20 @@ export const Canvas: React.FC<CanvasProps> = ({ format, htmlContent }) => {
 
         calculateScale();
         window.addEventListener('resize', calculateScale);
-        return () => window.removeEventListener('resize', calculateScale);
-    }, [dimensions.width, dimensions.height]);
+
+        // Steering Protocol Listener
+        const handleMessage = (e: MessageEvent) => {
+            if (e.data?.type === 'USER_NODE_SELECT' && onNodeSelect) {
+                onNodeSelect({ html: e.data.htmlPayload, tag: e.data.tagName });
+            }
+        };
+        window.addEventListener('message', handleMessage);
+
+        return () => {
+            window.removeEventListener('resize', calculateScale);
+            window.removeEventListener('message', handleMessage);
+        };
+    }, [dimensions.width, dimensions.height, onNodeSelect]);
 
     return (
         <div ref={containerRef} className="w-full h-full flex items-center justify-center bg-[#f4f1ea] overflow-hidden relative">
@@ -55,6 +68,32 @@ export const Canvas: React.FC<CanvasProps> = ({ format, htmlContent }) => {
                                     body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: transparent; }
                                     ::-webkit-scrollbar { display: none; }
                                 </style>
+                                <script>
+                                    // 10x Steering Protocol Native Interceptors
+                                    document.addEventListener('mouseover', (e) => {
+                                        if(e.target === document.body || e.target === document.documentElement) return;
+                                        e.target.style.outline = '2px solid #06b6d4';
+                                        e.target.style.outlineOffset = '-2px';
+                                        e.target.style.cursor = 'crosshair';
+                                        e.target.style.transition = 'outline 0.1s ease';
+                                    });
+                                    document.addEventListener('mouseout', (e) => {
+                                        e.target.style.outline = '';
+                                    });
+                                    document.addEventListener('click', (e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        window.parent.postMessage({ 
+                                            type: 'USER_NODE_SELECT', 
+                                            htmlPayload: e.target.outerHTML,
+                                            tagName: e.target.tagName.toLowerCase() 
+                                        }, '*');
+                                        
+                                        // Active feedback
+                                        e.target.style.outline = '3px solid #10b981';
+                                        setTimeout(() => e.target.style.outline = '', 300);
+                                    });
+                                </script>
                             </head>
                             <body>${htmlContent}</body>
                         </html>

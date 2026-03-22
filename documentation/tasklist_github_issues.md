@@ -32,7 +32,7 @@
 
 ### Epic 3: Frontend Steering & Canvas Interactions
 - [x] **Issue #7:** Build React Canvas integrating strict A4 and 16:9 viewport `iframes` scaling precisely to screen size.
-- [ ] **Issue #8:** Implement DOM selection bounding box logic to isolate nested semantic HTML components dynamically.
+- [x] **Issue #8:** Implement DOM selection bounding box logic to isolate nested semantic HTML components dynamically.
 - [ ] **Issue #9:** Wire the localized "Steering Protocol" capturing the mutated DOM subsets and pushing them via the MCP endpoints.
 
 ### Epic 4: The 10x Component Extraction System
