@@ -30,9 +30,29 @@ app.post('/api/mcp/execute', async (req: Request, res: Response) => {
         switch (tool) {
             case 'get_design_system':
                 return res.json({ result: await prisma.designSystem.findUnique({ where: { projectId: args.projectId } }) });
-            case 'validate_layout':
-                return res.json({ result: "[Physics Check]: Layout verified mathematically." });
-            case 'apply_dom_patch':
+            case 'validate_layout': {
+                const browser = await chromium.launch({ headless: true });
+                const page = await browser.newPage();
+                // Simulating the structural DOM boundaries
+                await page.setContent(`<!DOCTYPE html><html><body style="margin:0; overflow:hidden;">${args.htmlPayload}</body></html>`);
+
+                // 10x Headless layout validation: Detect bounding box clipping
+                const validationCheck = await page.evaluate(() => {
+                    const elements = Array.from(document.querySelectorAll('*'));
+                    const badNodes = elements.filter(el => {
+                        const rect = el.getBoundingClientRect();
+                        return rect.right > window.innerWidth || rect.bottom > window.innerHeight || rect.left < 0 || rect.top < 0;
+                    });
+                    return { success: badNodes.length === 0, count: badNodes.length };
+                });
+
+                await browser.close();
+                return res.json({
+                    result: validationCheck.success
+                        ? "[Physics Check]: Layout verified mathematically. Zero out-of-bound elements."
+                        : `[Physics Error]: Detected ${validationCheck.count} elements breaching the strict viewport boundary.`
+                });
+            } case 'apply_dom_patch':
                 return res.json({ result: `Slide patched: ${args.slideId}` });
             default:
                 return res.status(404).json({ error: `Unknown MCP Tool: ${tool}` });
