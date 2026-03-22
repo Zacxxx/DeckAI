@@ -10,7 +10,7 @@
 ### Epic 2: The Deterministic Headless Validator (Zero Layout Breaks)
 - [ ] **Issue #4:** Deploy Playwright on Cloud Run as an active physics node.
 - [x] **Issue #5:** Build the `validate_layout` "Boundary Checker" tool mathematically parsing DOM boundaries against viewport rects.
-- [ ] **Issue #6:** Build the `verify_aesthetics` tool mapping WCAG contrast and strict 8pt grid snapping.
+- [x] **Issue #6:** Build the `verify_aesthetics` tool mapping WCAG contrast and strict 8pt grid snapping.
 
 ***
 

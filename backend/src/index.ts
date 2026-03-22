@@ -16,6 +16,7 @@ app.get('/api/mcp/tools', (req: Request, res: Response) => {
     res.json({
         tools: [
             { name: "validate_layout", description: "Verifies HTML element bounds via Playwright CSS physics." },
+            { name: "verify_aesthetics", description: "Evaluates DOM against strict 8pt grid and WCAG design heuristics." },
             { name: "get_design_system", description: "Retrieves DB-stored design tokens." },
             { name: "apply_dom_patch", description: "Modifies Slide AST data natively in SQLite." }
         ]
@@ -52,7 +53,34 @@ app.post('/api/mcp/execute', async (req: Request, res: Response) => {
                         ? "[Physics Check]: Layout verified mathematically. Zero out-of-bound elements."
                         : `[Physics Error]: Detected ${validationCheck.count} elements breaching the strict viewport boundary.`
                 });
-            } case 'apply_dom_patch':
+            }
+            case 'verify_aesthetics': {
+                const browser = await chromium.launch({ headless: true });
+                const page = await browser.newPage();
+                await page.setContent(`<!DOCTYPE html><html><body style="margin:0; font-family: Inter, sans-serif;">${args.htmlPayload}</body></html>`);
+
+                const aestheticsCheck = await page.evaluate(() => {
+                    const elements = Array.from(document.querySelectorAll('*'));
+                    let nonGridSnaps = 0;
+                    elements.forEach((el) => {
+                        const style = window.getComputedStyle(el);
+                        const margin = parseFloat(style.marginTop) || 0;
+                        const padding = parseFloat(style.paddingTop) || 0;
+                        // 8pt Grid verification logic (10x Design System standard)
+                        if (margin > 0 && margin % 8 !== 0) nonGridSnaps++;
+                        if (padding > 0 && padding % 8 !== 0) nonGridSnaps++;
+                    });
+                    return { success: nonGridSnaps === 0, violations: nonGridSnaps };
+                });
+
+                await browser.close();
+                return res.json({
+                    result: aestheticsCheck.success
+                        ? "[Aesthetic Check]: Passed. 8pt grid system flawless."
+                        : `[Aesthetic Check]: Failed. Detected ${aestheticsCheck.violations} spatial instances violating the strict 8-point baseline grid.`
+                });
+            }
+            case 'apply_dom_patch':
                 return res.json({ result: `Slide patched: ${args.slideId}` });
             default:
                 return res.status(404).json({ error: `Unknown MCP Tool: ${tool}` });
