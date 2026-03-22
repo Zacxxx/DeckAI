@@ -253,11 +253,28 @@ export default function App() {
 
           {/* Bottom Floating Prompt Interface (Absolute to overlay the canvas void space) */}
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-50">
-            <div className="bg-white/90 backdrop-blur-2xl border border-black/10 shadow-[0_12px_48px_rgba(0,0,0,0.08)] rounded-3xl p-2.5 flex items-center gap-3 relative transition-all duration-300 focus-within:shadow-[0_16px_64px_rgba(0,0,0,0.12)] focus-within:ring-2 focus-within:ring-[#10b981]/20 focus-within:-translate-y-1">
-              {/* Context indicator */}
-              <div className={`shrink-0 ml-3 flex items-center justify-center w-8 h-8 rounded-xl transition-colors duration-300 ${selectedNode ? 'bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981]' : 'bg-[#f4f1ea] border border-[#e8e4d9] text-[#8b867c]'}`}>
-                {selectedNode ? '@' : '#'}
+            {attachedDocs.length > 0 && (
+              <div className="flex gap-2 mb-2 px-2 overflow-x-auto">
+                {attachedDocs.map((doc, idx) => (
+                  <div key={idx} className="bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono text-[#8b867c] border border-black/5 flex items-center shadow-sm">
+                    📄 {doc.name}
+                    <button onClick={() => setAttachedDocs(prev => prev.filter((_, i) => i !== idx))} className="ml-2 hover:text-red-500 font-bold">&times;</button>
+                  </div>
+                ))}
               </div>
+            )}
+            <div className="bg-white/90 backdrop-blur-2xl border border-black/10 shadow-[0_12px_48px_rgba(0,0,0,0.08)] rounded-3xl p-2.5 flex items-center gap-3 relative transition-all duration-300 focus-within:shadow-[0_16px_64px_rgba(0,0,0,0.12)] focus-within:ring-2 focus-within:ring-[#10b981]/20 focus-within:-translate-y-1">
+              {/* Context indicator / Document Uploader */}
+              <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.md,.json,.csv,.html" />
+              <button
+                onClick={() => {
+                  if (!selectedNode) fileInputRef.current?.click();
+                }}
+                className={`shrink-0 ml-3 flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${selectedNode ? 'bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] cursor-default' : 'bg-[#f4f1ea] border border-[#e8e4d9] text-[#8b867c] hover:bg-[#e8e4d9] cursor-pointer'}`}
+                title={selectedNode ? "Steering Active" : "Attach Reference Document"}
+              >
+                {selectedNode ? '@' : '#'}
+              </button>
 
               <input
                 type="text"

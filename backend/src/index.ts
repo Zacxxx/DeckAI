@@ -110,16 +110,26 @@ app.get('/api/stream/:projectId', (req: Request, res: Response) => {
 });
 
 app.post('/api/generate', async (req: Request, res: Response) => {
-    const { projectId, prompt, targetNodeHtml } = req.body;
+    const { projectId, prompt, targetNodeHtml, attachedContext } = req.body;
     const stream = activeStreams.get(projectId);
 
     try {
         // Hydrate DB Design tokens to pass as execution axiom
         const designTokens = await prisma.designSystem.findUnique({ where: { projectId } });
 
+        // Serialize attached documents
+        let contextDocBuffer = "";
+        if (attachedContext && Array.isArray(attachedContext)) {
+            contextDocBuffer = attachedContext.map(doc => `--- FILE: ${doc.name} ---\n${doc.content}`).join('\n\n');
+        }
+
         // Spin up the extracted Rust Codex Harness natively
         const agentProcess = spawn('cargo', ['run', '--manifest-path', '../agent/Cargo.toml', '--', prompt], {
-            env: { ...process.env, AGENT_TARGET_BOUNDS: targetNodeHtml || "" }
+            env: {
+                ...process.env,
+                AGENT_TARGET_BOUNDS: targetNodeHtml || "",
+                AGENT_REFERENCE_DOCS: contextDocBuffer
+            }
         });
 
         agentProcess.stdout.on('data', (chunk) => {
