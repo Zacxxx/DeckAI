@@ -1,7 +1,7 @@
 # System Requirements
 
 ## High-Level Architecture
-- **Agentic Core Engine**: Built upon a forked version of the **opencode harness** located securely in the isolated `/agent` directory. This handles multi-agent orchestration (Designer Agent, Validator Agent, Extractor Agent) and deterministic tool loops flawlessly.
+- **Agentic Core Engine**: Built upon a forked version of the **opencode harness** located securely in the isolated `/agent` directory. This is a **high-performance Rust binary** stripped of GUI, dedicated solely to orchestration, routing (OpenRouter), and headless tool execution.
 - **Backend & API**: Organized inside the `/backend` directory functioning as the logical controller, connecting the frontend with the agent harness.
 - **Database Layer**: Built on **Prisma + SQLite**, ensuring a flawlessly visual environment (via Prisma Studio) and 100% execution parity across local environments and cloud deployments.
 - **Dual-Environment Deployment** (Managed in `/deploy`):

@@ -3,8 +3,8 @@
 ## 1. Directory Structure & Separation of Concerns
 - `/frontend`: The Vite + React + TS workspace. Handles DOM selection, Canvas rendering, and UI states.
 - `/backend`: The primary Node/Express REST API. Handles auth, database ORM, and generic logic.
-- `/agent`: Fully isolated from `/backend`. Exclusively houses the complex LLM orchestration, opencode harness forks, prompts, and multi-turn loops.
-- `/deploy`: Centralizes `Dockerfile.frontend`, `Dockerfile.backend`, and `docker-compose.yml` for unified local/cloud topology setups.
+- `/agent`: Fully isolated from `/backend`. Exclusively houses the complex LLM orchestration, opencode harness forks, and multi-turn loops. **Built entirely in Rust** for extreme concurrency and low-latency headless browser spawning.
+- `/deploy`: Centralizes `Dockerfile.frontend`, `Dockerfile.backend`, `Dockerfile.agent`, and `docker-compose.yml` for unified local/cloud topology setups.
 
 ## 2. Shared Database Layer (Prisma + SQLite)
 - **Local & Cloud Parity**: Uses SQLite to maintain an impossibly lightweight footprint (a single `dev.db` file) that executes identically in local development and scales gracefully natively or via volumes in Cloud Run.

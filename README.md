@@ -45,7 +45,7 @@ We are tearing down the archaic barriers of manual document formatting. **Deck A
 <h2 id="architecture">🏗️ Architecture</h2>
 
 Our workspaces are strictly decoupled:
-* **`/agent`**: The *opencode harness* fork doing heavy LLM reasoning, DOM checks, and context management.
+* **`/agent`**: The *opencode harness* fork doing heavy LLM reasoning. **Written in Rust** (No GUI, strictly routing and headless validation engine).
 * **`/frontend`**: Vite + React + TypeScript powering the UI and Canvas steering.
 * **`/backend`**: Node.js/Express handling routing.
 * **`/deploy`**: Docker and cloud infrastructure topologies.
