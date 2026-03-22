@@ -364,7 +364,7 @@ export default function App() {
       <main className="flex-1 relative overflow-hidden flex">
 
         {/* Left Sidebar: AST Nodes & SSE Real-time Logs */}
-        <aside className="w-[360px] shrink-0 border-r border-[#e8e4d9] bg-[#faf8f5] flex flex-col relative z-10 shadow-[8px_0_32px_rgba(0,0,0,0.02)]">
+        <aside className="w-[300px] shrink-0 border-r border-[#e8e4d9] bg-[#faf8f5] flex flex-col relative z-10 shadow-[8px_0_32px_rgba(0,0,0,0.02)]">
 
           <div className="p-8 flex-1 flex flex-col gap-8 overflow-y-auto">
             {/* Active Node Targetting & Tool Palette */}
