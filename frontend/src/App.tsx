@@ -4,7 +4,29 @@ import { Canvas } from './components/Canvas';
 export default function App() {
   const [format, setFormat] = useState<'16:9' | 'A4'>('16:9');
   const [selectedNode, setSelectedNode] = useState<{ html: string, tag: string } | null>(null);
+  const [isSteering, setIsSteering] = useState(false);
   const [html, setHtml] = useState('<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #fdfbf7 0%, #e8e4d9 100%);"><h1 style="color: #2c2b29; font-size: 82px; letter-spacing: -2px; font-weight: 500; margin: 0;">Deck AI Canvas Ready</h1><p style="color: #8b867c; font-size: 24px; margin-top: 16px;">Hover over any element here to steer.</p></div>');
+
+  const handleSteer = async () => {
+    if (!selectedNode) return;
+    setIsSteering(true);
+    try {
+      const res = await fetch('http://localhost:8080/api/mcp/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tool: 'apply_dom_patch',
+          args: { slideId: 'frontend-canvas-draft', patchData: selectedNode.html }
+        })
+      });
+      const data = await res.json();
+      console.log("MCP Response logged safely:", data);
+    } catch (e) {
+      console.error("MCP Binding Route Failed:", e);
+    } finally {
+      setTimeout(() => setIsSteering(false), 600);
+    }
+  };
 
   return (
     <div className="w-screen h-screen flex flex-col bg-[#faf8f5] text-[#2c2b29] font-sans antialiased">
@@ -60,8 +82,12 @@ export default function App() {
                     </code>
                     <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-[#1c1b1a] to-transparent" />
                   </div>
-                  <button className="w-full mt-2 bg-white text-[#2c2b29] text-xs font-bold uppercase tracking-wider py-2.5 rounded-xl hover:bg-[#f4f1ea] transition-colors active:scale-95">
-                    Steer Component
+                  <button
+                    onClick={handleSteer}
+                    disabled={isSteering}
+                    className="w-full mt-2 bg-white flex justify-center items-center text-[#2c2b29] text-xs font-bold uppercase tracking-wider py-2.5 rounded-xl hover:bg-[#f4f1ea] transition-colors active:scale-95 disabled:opacity-50"
+                  >
+                    {isSteering ? 'Piping to Node MCP...' : 'Steer Component'}
                   </button>
                 </>
               ) : (
