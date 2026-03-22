@@ -477,18 +477,18 @@ export default function App() {
           </div>
 
           {/* Bottom Floating Prompt Interface (Absolute to overlay the canvas void space) */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-80px)] px-0 z-50">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-50 flex flex-col items-center">
             {attachedDocs.length > 0 && (
-              <div className="flex gap-2 mb-2 px-2 overflow-x-auto">
+              <div className="flex gap-2 mb-2 w-full px-2 overflow-x-auto">
                 {attachedDocs.map((doc, idx) => (
-                  <div key={idx} className="bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono text-[#8b867c] border border-black/5 flex items-center shadow-sm">
+                  <div key={idx} className="bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono text-[#8b867c] border border-black/5 flex items-center shadow-sm whitespace-nowrap">
                     📄 {doc.name}
                     <button onClick={() => setAttachedDocs(prev => prev.filter((_, i) => i !== idx))} className="ml-2 hover:text-red-500 font-bold">&times;</button>
                   </div>
                 ))}
               </div>
             )}
-            <div className="bg-white/90 backdrop-blur-2xl border border-black/10 shadow-[0_12px_48px_rgba(0,0,0,0.08)] rounded-3xl p-2.5 flex items-center gap-3 relative transition-all duration-300 focus-within:shadow-[0_16px_64px_rgba(0,0,0,0.12)] focus-within:ring-2 focus-within:ring-[#10b981]/20 focus-within:-translate-y-1">
+            <div className="w-full bg-white/90 backdrop-blur-2xl border border-black/10 shadow-[0_12px_48px_rgba(0,0,0,0.08)] rounded-3xl p-2.5 flex items-center gap-3 relative transition-all duration-300 focus-within:shadow-[0_16px_64px_rgba(0,0,0,0.12)] focus-within:ring-2 focus-within:ring-[#10b981]/20 focus-within:-translate-y-1">
               {/* Context indicator / Document Uploader */}
               <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.md,.json,.csv,.html" />
               <button
