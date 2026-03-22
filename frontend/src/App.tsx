@@ -340,12 +340,12 @@ export default function App() {
 
       {/* Component Library Overlay */}
       {isLibraryOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-12">
+        <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-12 pb-32">
           <div className="bg-[#faf8f5] w-full max-w-5xl h-full max-h-[80vh] rounded-[2rem] shadow-2xl border border-black/10 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between px-8 py-6 border-b border-[#e8e4d9]">
               <div className="flex items-center gap-3">
                 <Library className="text-[#10b981]" size={24} strokeWidth={2.5} />
-                <h2 className="text-xl font-bold tracking-tight text-[#2c2b29]">Generated Component Library</h2>
+                <h2 className="text-xl font-bold tracking-tight text-[#2c2b29]">Library</h2>
               </div>
               <button onClick={() => setIsLibraryOpen(false)} className="w-10 h-10 flex items-center justify-center bg-[#e8e4d9]/50 hover:bg-[#e8e4d9] rounded-full text-[#555] transition-colors">
                 <X size={18} strokeWidth={2.5} />
@@ -433,7 +433,7 @@ export default function App() {
           </div>
 
           {/* Bottom Floating Prompt Interface (Absolute to overlay the canvas void space) */}
-          <div className="absolute pb-10 bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-50 flex flex-col items-center">
+          <div className="absolute pb-10 bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-[100] flex flex-col items-center pointer-events-none">
             {attachedDocs.length > 0 && (
               <div className="flex gap-2 mb-2 w-full px-2 overflow-x-auto">
                 {attachedDocs.map((doc, idx) => (
@@ -444,7 +444,7 @@ export default function App() {
                 ))}
               </div>
             )}
-            <div className="w-full bg-white/90 backdrop-blur-2xl border border-black/10 shadow-[0_12px_48px_rgba(0,0,0,0.08)] rounded-3xl p-2.5 flex items-center gap-3 relative transition-all duration-300 focus-within:shadow-[0_16px_64px_rgba(0,0,0,0.12)] focus-within:ring-2 focus-within:ring-[#10b981]/20 focus-within:-translate-y-1">
+            <div className="w-full bg-white/90 backdrop-blur-2xl border border-black/10 shadow-[0_12px_48px_rgba(0,0,0,0.08)] rounded-3xl p-2.5 flex items-center gap-3 relative transition-all duration-300 focus-within:shadow-[0_16px_64px_rgba(0,0,0,0.12)] focus-within:ring-2 focus-within:ring-[#10b981]/20 focus-within:-translate-y-1 pointer-events-auto">
               {/* Context indicator / Document Uploader */}
               <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.md,.json,.csv,.html" />
               <button
