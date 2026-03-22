@@ -411,13 +411,13 @@ export default function App() {
             </div>
           )}
 
-          <div className="flex-1 relative max-h-full pb-24 flex items-center justify-center">
+          <div className="flex-1 relative min-h-0 flex items-center justify-center overflow-hidden">
 
             <Canvas format={format} htmlContent={html || '<div style="width:100%; height:100%; background:#fff; margin:0;"></div>'} onNodeSelect={setSelectedNode} />
 
             {/* Empty State Hover Overlay */}
             {!html && !isLibraryOpen && (
-              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-30 pb-24">
+              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-30">
                 <div className="bg-white/70 backdrop-blur-xl px-12 py-10 rounded-[2.5rem] border border-black/5 shadow-[0_32px_64px_rgba(0,0,0,0.04)] flex flex-col items-center gap-5 transition-opacity duration-700">
                   <div className="relative w-14 h-14 flex items-center justify-center">
                     <div className="absolute inset-0 border-2 border-dashed border-[#e8e4d9] rounded-full animate-[spin_8s_linear_infinite]" />
@@ -432,53 +432,55 @@ export default function App() {
             )}
           </div>
 
-          {/* Bottom Floating Prompt Interface (Absolute to overlay the canvas void space) */}
-          <div className="absolute pb-10 bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-[100] flex flex-col items-center pointer-events-none">
-            {attachedDocs.length > 0 && (
-              <div className="flex gap-2 mb-2 w-full px-2 overflow-x-auto">
-                {attachedDocs.map((doc, idx) => (
-                  <div key={idx} className="bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono text-[#8b867c] border border-black/5 flex items-center shadow-sm whitespace-nowrap">
-                    📄 {doc.name}
-                    <button onClick={() => setAttachedDocs(prev => prev.filter((_, i) => i !== idx))} className="ml-2 hover:text-red-500 font-bold">&times;</button>
-                  </div>
-                ))}
+          {/* Bottom Structural Prompt Interface */}
+          <div className="w-full shrink-0 flex flex-col items-center justify-center pb-8 pt-4 relative z-[100] pointer-events-none">
+            <div className="w-full max-w-2xl px-4 flex flex-col items-center">
+              {attachedDocs.length > 0 && (
+                <div className="flex gap-2 mb-2 w-full px-2 overflow-x-auto pointer-events-auto">
+                  {attachedDocs.map((doc, idx) => (
+                    <div key={idx} className="bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono text-[#8b867c] border border-black/5 flex items-center shadow-sm whitespace-nowrap">
+                      📄 {doc.name}
+                      <button onClick={() => setAttachedDocs(prev => prev.filter((_, i) => i !== idx))} className="ml-2 hover:text-red-500 font-bold">&times;</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="w-full bg-white/90 backdrop-blur-2xl border border-black/10 shadow-[0_12px_48px_rgba(0,0,0,0.08)] rounded-3xl p-2.5 flex items-center gap-3 relative transition-all duration-300 focus-within:shadow-[0_16px_64px_rgba(0,0,0,0.12)] focus-within:ring-2 focus-within:ring-[#10b981]/20 focus-within:-translate-y-1 pointer-events-auto">
+                {/* Context indicator / Document Uploader */}
+                <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.md,.json,.csv,.html" />
+                <button
+                  onClick={() => {
+                    if (!selectedNode) fileInputRef.current?.click();
+                  }}
+                  className={`shrink-0 ml-3 flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${selectedNode ? 'bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] cursor-default' : 'bg-[#f4f1ea] border border-[#e8e4d9] text-[#8b867c] hover:bg-[#e8e4d9] cursor-pointer'}`}
+                  title={selectedNode ? "Steering Active" : "Attach Reference Document"}
+                >
+                  {selectedNode ? '@' : '#'}
+                </button>
+
+                <input
+                  type="text"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                  placeholder={selectedNode ? `Instruct agent to mutate <${selectedNode.tag}>...` : "Prompt DeckAI (e.g. Generate a dark-mode pricing slide)..."}
+                  className="flex-1 bg-transparent border-none outline-none text-[14px] text-[#2c2b29] placeholder:text-[#a8a49c] font-medium tracking-wide"
+                  disabled={isGenerating}
+                />
+
+                <button
+                  onClick={handleGenerate}
+                  disabled={isGenerating || !prompt.trim()}
+                  className="shrink-0 bg-[#2c2b29] text-white h-10 px-6 rounded-2xl text-[11px] uppercase tracking-widest font-bold hover:bg-black transition-all duration-300 disabled:opacity-50 disabled:hover:bg-[#2c2b29] active:scale-95 shadow-md flex items-center gap-2"
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-bounce" />
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-bounce [animation-delay:0.1s]" />
+                    </>
+                  ) : 'Generate'}
+                </button>
               </div>
-            )}
-            <div className="w-full bg-white/90 backdrop-blur-2xl border border-black/10 shadow-[0_12px_48px_rgba(0,0,0,0.08)] rounded-3xl p-2.5 flex items-center gap-3 relative transition-all duration-300 focus-within:shadow-[0_16px_64px_rgba(0,0,0,0.12)] focus-within:ring-2 focus-within:ring-[#10b981]/20 focus-within:-translate-y-1 pointer-events-auto">
-              {/* Context indicator / Document Uploader */}
-              <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".txt,.md,.json,.csv,.html" />
-              <button
-                onClick={() => {
-                  if (!selectedNode) fileInputRef.current?.click();
-                }}
-                className={`shrink-0 ml-3 flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${selectedNode ? 'bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] cursor-default' : 'bg-[#f4f1ea] border border-[#e8e4d9] text-[#8b867c] hover:bg-[#e8e4d9] cursor-pointer'}`}
-                title={selectedNode ? "Steering Active" : "Attach Reference Document"}
-              >
-                {selectedNode ? '@' : '#'}
-              </button>
-
-              <input
-                type="text"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                placeholder={selectedNode ? `Instruct agent to mutate <${selectedNode.tag}>...` : "Prompt DeckAI (e.g. Generate a dark-mode pricing slide)..."}
-                className="flex-1 bg-transparent border-none outline-none text-[14px] text-[#2c2b29] placeholder:text-[#a8a49c] font-medium tracking-wide"
-                disabled={isGenerating}
-              />
-
-              <button
-                onClick={handleGenerate}
-                disabled={isGenerating || !prompt.trim()}
-                className="shrink-0 bg-[#2c2b29] text-white h-10 px-6 rounded-2xl text-[11px] uppercase tracking-widest font-bold hover:bg-black transition-all duration-300 disabled:opacity-50 disabled:hover:bg-[#2c2b29] active:scale-95 shadow-md flex items-center gap-2"
-              >
-                {isGenerating ? (
-                  <>
-                    <div className="w-1.5 h-1.5 bg-white rounded-full animate-bounce" />
-                    <div className="w-1.5 h-1.5 bg-white rounded-full animate-bounce [animation-delay:0.1s]" />
-                  </>
-                ) : 'Generate'}
-              </button>
             </div>
           </div>
 
